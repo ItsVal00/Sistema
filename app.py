@@ -200,9 +200,15 @@ init_db()
 # --- RUTAS PÚBLICAS Y CLIENTE ---
 
 @app.route('/')
+def landing():
+    return render_template('landing.html')
+
+# 2. Formulario de Registro Público
+@app.route('/registro-form')
 def formulario():
     return render_template('formulario.html')
 
+# 3. Procesar el Registro
 @app.route('/registro', methods=['POST'])
 def registrar_cliente():
     nombre = request.form.get('nombre')
