@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Consultante — Maru González</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .glass-box {
+            background: rgba(30, 41, 59, 0.65);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .glass-input {
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .glass-input:focus {
+            border-color: #a855f7;
+            box-shadow: 0 0 15px rgba(168, 85, 247, 0.25);
+        }
+        .glass-checkbox {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .glass-checkbox:hover {
+            border-color: rgba(168, 85, 247, 0.4);
+            background: rgba(168, 85, 247, 0.08);
+        }
+    </style>
+</head>
+<body class="bg-[#0b0f19] text-slate-100 min-h-screen py-10 px-4 flex items-center justify-center relative overflow-x-hidden antialiased selection:bg-purple-500 selection:text-white">
+
+    <!-- Efecto Neón de Fondo -->
+    <div class="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-purple-600/15 rounded-full blur-[140px] pointer-events-none"></div>
+
+    <div class="max-w-2xl w-full glass-box p-6 md:p-10 rounded-3xl shadow-2xl space-y-8 relative z-10 my-auto">
+        
+        <!-- Header del Formulario -->
+        <div class="text-center space-y-2">
+            <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-purple-600 to-indigo-500 flex items-center justify-center font-extrabold text-white text-2xl mx-auto shadow-lg shadow-purple-500/30">
+                ✨
+            </div>
+            <h1 class="text-2xl md:text-3xl font-extrabold bg-gradient-to-r from-purple-300 via-pink-200 to-amber-200 bg-clip-text text-transparent">
+                Maru González
+            </h1>
+            <p class="text-xs text-slate-400 font-medium max-w-md mx-auto">
+                Astróloga Evolutiva & Canalizadora — Formulario de Registro de Consultante
+            </p>
+        </div>
+
+        <form action="/registro" method="POST" class="space-y-6">
+            
+            <!-- 1. Datos Personales -->
+            <div class="space-y-4">
+                <div class="flex items-center gap-2 text-purple-300 font-bold text-xs uppercase tracking-wider border-b border-white/10 pb-2">
+                    <i data-lucide="user" class="w-4 h-4 text-purple-400"></i>
+                    <span>1. Datos Personales</span>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1.5">Nombre Completo *</label>
+                    <input type="text" name="nombre" required placeholder="Ej: María Pérez" class="w-full glass-input rounded-xl p-3 text-xs text-white focus:outline-none">
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1.5">WhatsApp / Teléfono *</label>
+                        <div class="relative">
+                            <input type="tel" name="telefono" required placeholder="Ej: 04141234567" class="w-full glass-input rounded-xl p-3 pl-10 text-xs text-white focus:outline-none">
+                            <i data-lucide="phone" class="w-4 h-4 text-slate-400 absolute left-3 top-3"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1.5">Correo Electrónico *</label>
+                        <div class="relative">
+                            <input type="email" name="email" required placeholder="tu@email.com" class="w-full glass-input rounded-xl p-3 pl-10 text-xs text-white focus:outline-none">
+                            <i data-lucide="mail" class="w-4 h-4 text-slate-400 absolute left-3 top-3"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1.5">Crea una Contraseña para tu Portal *</label>
+                    <div class="relative">
+                        <input type="password" name="password" required placeholder="••••••••" class="w-full glass-input rounded-xl p-3 pl-10 text-xs text-white focus:outline-none">
+                        <i data-lucide="lock" class="w-4 h-4 text-slate-400 absolute left-3 top-3"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. Datos Astrológicos -->
+            <div class="space-y-4 pt-2">
+                <div class="flex items-center gap-2 text-purple-300 font-bold text-xs uppercase tracking-wider border-b border-white/10 pb-2">
+                    <i data-lucide="sparkles" class="w-4 h-4 text-purple-400"></i>
+                    <span>2. Datos de Nacimiento Exactos</span>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1.5">Fecha de Nacimiento *</label>
+                        <input type="date" name="fecha_nacimiento" required class="w-full glass-input rounded-xl p-3 text-xs text-white focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1.5">Hora Exacta</label>
+                        <input type="time" name="hora_nacimiento" class="w-full glass-input rounded-xl p-3 text-xs text-white focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1.5">Lugar (Ciudad y País)</label>
+                        <input type="text" name="lugar_nacimiento" placeholder="Ej: Caracas, Venezuela" class="w-full glass-input rounded-xl p-3 text-xs text-white focus:outline-none">
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. Selección de Servicios -->
+            <div class="space-y-4 pt-2">
+                <div class="flex items-center gap-2 text-purple-300 font-bold text-xs uppercase tracking-wider border-b border-white/10 pb-2">
+                    <i data-lucide="check-square" class="w-4 h-4 text-purple-400"></i>
+                    <span>3. Servicios de tu Interés</span>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+                    <label class="flex items-center space-x-3 glass-checkbox p-3.5 rounded-2xl cursor-pointer transition">
+                        <input type="checkbox" name="servicios" value="Carta Natal Evolutiva" class="w-4 h-4 rounded border-slate-600 accent-purple-600 focus:ring-0">
+                        <span class="text-slate-200 font-medium">Carta Natal Evolutiva (90 min)</span>
+                    </label>
+
+                    <label class="flex items-center space-x-3 glass-checkbox p-3.5 rounded-2xl cursor-pointer transition">
+                        <input type="checkbox" name="servicios" value="Revolución Solar" class="w-4 h-4 rounded border-slate-600 accent-purple-600 focus:ring-0">
+                        <span class="text-slate-200 font-medium">Revolución Solar (60 min)</span>
+                    </label>
+
+                    <label class="flex items-center space-x-3 glass-checkbox p-3.5 rounded-2xl cursor-pointer transition">
+                        <input type="checkbox" name="servicios" value="Tarot Evolutivo" class="w-4 h-4 rounded border-slate-600 accent-purple-600 focus:ring-0">
+                        <span class="text-slate-200 font-medium">Tarot Evolutivo (60 min)</span>
+                    </label>
+
+                    <label class="flex items-center space-x-3 glass-checkbox p-3.5 rounded-2xl cursor-pointer transition">
+                        <input type="checkbox" name="servicios" value="Limpieza de Chakras" class="w-4 h-4 rounded border-slate-600 accent-purple-600 focus:ring-0">
+                        <span class="text-slate-200 font-medium">Limpieza y Alineación de Chakras</span>
+                    </label>
+
+                    <label class="flex items-center space-x-3 glass-checkbox p-3.5 rounded-2xl cursor-pointer transition">
+                        <input type="checkbox" name="servicios" value="Astrología del Dinero" class="w-4 h-4 rounded border-slate-600 accent-purple-600 focus:ring-0">
+                        <span class="text-slate-200 font-medium">Astrología del Dinero</span>
+                    </label>
+
+                    <label class="flex items-center space-x-3 glass-checkbox p-3.5 rounded-2xl cursor-pointer transition">
+                        <input type="checkbox" name="servicios" value="Lectura Canalizada" class="w-4 h-4 rounded border-slate-600 accent-purple-600 focus:ring-0">
+                        <span class="text-slate-200 font-medium">Lectura Canalizada (60 min)</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Motivo de Consulta -->
+            <div class="pt-2">
+                <label class="block text-xs font-semibold text-slate-300 mb-1.5">¿Qué tema te gustaría trabajar en la consulta?</label>
+                <textarea name="motivo_consulta" rows="3" placeholder="Describe brevemente lo que buscas profundizar..." class="w-full glass-input rounded-xl p-3 text-xs text-white focus:outline-none"></textarea>
+            </div>
+
+            <button type="submit" class="w-full bg-purple-600 hover:bg-purple-500 text-white font-bold py-3.5 px-4 rounded-xl transition shadow-lg shadow-purple-600/30 text-xs mt-4">
+                Enviar Información y Crear Portal
+            </button>
+        </form>
+
+        <div class="text-center border-t border-white/10 pt-4">
+            <a href="/mi-cuenta" class="text-xs text-purple-300 hover:text-purple-200 font-semibold transition">
+                ¿Ya estás registrado? Inicia sesión en tu portal aquí →
+            </a>
+        </div>
+    </div>
+
+    <script>lucide.createIcons();</script>
+</body>
+</html>
