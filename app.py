@@ -172,26 +172,16 @@ def cliente_login():
     return render_template('cliente_login.html')
 
 
-@app.route('/mi-cuenta/<token>')
-def mi_cuenta_token(token):
+@app.route('/mi-cuenta')
+@client_required
+def mi_cuenta():
+    cliente_id = session.get('cliente_id')
     conn = get_db_connection()
     cursor = conn.cursor()
     param_symbol = '%s' if IS_POSTGRES else '?'
 
-    cursor.execute(f"SELECT * FROM clientes WHERE token_acceso = {param_symbol}", (token,))
+    cursor.execute(f"SELECT * FROM clientes WHERE id = {param_symbol}", (cliente_id,))
     cliente = cursor.fetchone()
-
-    if not cliente:
-        conn.close()
-        flash("El enlace de acceso no es válido o ha expirado.", "error")
-        return redirect(url_for('registro_form'))
-
-    # Guardar en sesión
-    session['client_logged_in'] = True
-    session['cliente_id'] = cliente['id']
-    session['cliente_nombre'] = cliente['nombre']
-
-    cliente_id = cliente['id']
 
     cursor.execute(f"SELECT * FROM citas WHERE cliente_id = {param_symbol} ORDER BY fecha_cita DESC", (cliente_id,))
     citas = cursor.fetchall()
@@ -223,6 +213,29 @@ def mi_cuenta_token(token):
         proxima_cita=proxima_cita,
         ultima_cita=ultima_cita
     )
+
+
+@app.route('/mi-cuenta/<token>')
+def mi_cuenta_token(token):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    param_symbol = '%s' if IS_POSTGRES else '?'
+
+    cursor.execute(f"SELECT * FROM clientes WHERE token_acceso = {param_symbol}", (token,))
+    cliente = cursor.fetchone()
+
+    if not cliente:
+        conn.close()
+        flash("El enlace de acceso no es válido o ha expirado.", "error")
+        return redirect(url_for('registro_form'))
+
+    # Autenticar automáticamente al usuario
+    session['client_logged_in'] = True
+    session['cliente_id'] = cliente['id']
+    session['cliente_nombre'] = cliente['nombre']
+
+    conn.close()
+    return redirect(url_for('mi_cuenta'))
 
 
 @app.route('/solicitar_servicio', methods=['POST'])
