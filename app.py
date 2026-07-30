@@ -1,11 +1,11 @@
 import os
 import json
 import sqlite3
-from datetime import datetime, timedelta
+from datetime import datetime
 from functools import wraps
 from flask import (
     Flask, render_template, request, redirect, 
-    url_for, flash, session, jsonify, Response
+    url_for, flash, session, Response
 )
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -34,113 +34,6 @@ def get_db_connection():
         conn = sqlite3.connect(DB_PATH)
         conn.row_factory = sqlite3.Row
         return conn
-
-
-def init_db():
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    
-    # Si estamos en SQLite local, creamos la estructura automáticamente
-    if not IS_POSTGRES:
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS usuarios_admin (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                usuario TEXT UNIQUE NOT NULL,
-                password_hash TEXT NOT NULL
-            );
-        ''')
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS clientes (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                nombre TEXT NOT NULL,
-                telefono TEXT NOT NULL,
-                email TEXT NOT NULL,
-                fecha_nacimiento TEXT NOT NULL,
-                hora_nacimiento TEXT,
-                lugar_nacimiento TEXT,
-                motivo_consulta TEXT,
-                referido_por TEXT,
-                password_hash TEXT,
-                fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            );
-        ''')
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS servicios_cliente (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                cliente_id INTEGER,
-                servicio_nombre TEXT NOT NULL,
-                FOREIGN KEY (cliente_id) REFERENCES clientes (id)
-            );
-        ''')
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS documentos (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                cliente_id INTEGER,
-                nombre_archivo TEXT NOT NULL,
-                tipo_doc TEXT NOT NULL,
-                fecha_subida TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                FOREIGN KEY (cliente_id) REFERENCES clientes (id)
-            );
-        ''')
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS citas (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                cliente_id INTEGER,
-                servicio TEXT NOT NULL,
-                fecha_cita TEXT NOT NULL,
-                hora_cita TEXT NOT NULL,
-                link_reunion TEXT,
-                estado TEXT DEFAULT 'Pendiente',
-                notas TEXT,
-                nombre_manual TEXT,
-                contacto_manual TEXT,
-                FOREIGN KEY (cliente_id) REFERENCES clientes (id)
-            );
-        ''')
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS solicitudes_servicio (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                cliente_id INTEGER,
-                servicio_nombre TEXT NOT NULL,
-                fecha_solicitud TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                estado TEXT DEFAULT 'Pendiente',
-                FOREIGN KEY (cliente_id) REFERENCES clientes (id)
-            );
-        ''')
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS pagos (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                cliente_id INTEGER,
-                concepto TEXT NOT NULL,
-                monto REAL NOT NULL,
-                fecha_pago TEXT NOT NULL,
-                metodo_pago TEXT,
-                FOREIGN KEY (cliente_id) REFERENCES clientes (id)
-            );
-        ''')
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS notas_privadas (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                cliente_id INTEGER,
-                contenido TEXT NOT NULL,
-                fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                FOREIGN KEY (cliente_id) REFERENCES clientes (id)
-            );
-        ''')
-        
-        # Crear admin inicial local
-        cursor.execute("SELECT * FROM usuarios_admin WHERE usuario = 'admin'")
-        if not cursor.fetchone():
-            default_hash = generate_password_hash("maru2026")
-            cursor.execute("INSERT INTO usuarios_admin (usuario, password_hash) VALUES (?, ?)", ('admin', default_hash))
-
-        conn.commit()
-    conn.close()
-
-try:
-    init_db()
-except Exception as e:
-    print(f"Nota en inicialización de DB: {e}")
 
 
 # Decoradores de Autenticación
@@ -199,7 +92,6 @@ def registro_form():
         try:
             param_symbol = '%s' if IS_POSTGRES else '?'
             
-            # Insertar Cliente
             query_cliente = f'''
                 INSERT INTO clientes (nombre, telefono, email, fecha_nacimiento, hora_nacimiento, lugar_nacimiento, motivo_consulta, referido_por, password_hash)
                 VALUES ({param_symbol}, {param_symbol}, {param_symbol}, {param_symbol}, {param_symbol}, {param_symbol}, {param_symbol}, {param_symbol}, {param_symbol})
@@ -212,7 +104,6 @@ def registro_form():
                 cursor.execute(query_cliente, (nombre, telefono, email, fecha_nac, hora_nac, lugar_nac, motivo, referido_por, password_hash))
                 cliente_id = cursor.lastrowid
 
-            # Insertar Servicios de Interés
             for servicio in servicios_seleccionados:
                 query_servicio = f'''
                     INSERT INTO servicios_cliente (cliente_id, servicio_nombre)
@@ -409,31 +300,16 @@ def admin_dashboard():
     ''')
     pagos = cursor.fetchall()
 
-    # Total Ingresos
     cursor.execute("SELECT SUM(monto) AS total FROM pagos")
     row_ingresos = cursor.fetchone()
     total_ingresos = (row_ingresos['total'] or 0) if row_ingresos else 0
 
-    # 5. Métricas y Estadísticas
+    # 5. Métricas Básicas
     cursor.execute("SELECT COUNT(*) AS total FROM clientes")
     total_clientes = cursor.fetchone()['total']
 
-    # Clientes Activos (con cita o pago en los últimos 6 meses / 180 días)
-    cursor.execute('''
-        SELECT COUNT(DISTINCT id) AS total FROM clientes WHERE id IN (
-            SELECT DISTINCT cliente_id FROM citas WHERE fecha_cita >= CURRENT_DATE - INTERVAL '180 days'
-            UNION
-            SELECT DISTINCT cliente_id FROM pagos WHERE fecha_pago >= CURRENT_DATE - INTERVAL '180 days'
-        )
-    ''' if IS_POSTGRES else '''
-        SELECT COUNT(DISTINCT id) AS total FROM clientes WHERE id IN (
-            SELECT DISTINCT cliente_id FROM citas WHERE fecha_cita >= date('now', '-180 days')
-            UNION
-            SELECT DISTINCT cliente_id FROM pagos WHERE fecha_pago >= date('now', '-180 days')
-        )
-    ''')
-    total_activos = cursor.fetchone()['total']
-    total_inactivos = max(0, total_clientes - total_activos)
+    total_activos = total_clientes
+    total_inactivos = 0
 
     # Top Servicios
     cursor.execute('''
@@ -443,28 +319,6 @@ def admin_dashboard():
         ORDER BY total DESC LIMIT 5
     ''')
     servicios_top = cursor.fetchall()
-
-    # Próximos Cumpleaños (siguientes 30 días)
-    alertas_cumple = []
-    hoy = datetime.now()
-    for c in clientes:
-        if c['fecha_nacimiento']:
-            try:
-                f_nac = datetime.strptime(str(c['fecha_nacimiento']), '%Y-%m-%d')
-                cumple_este_ano = f_nac.replace(year=hoy.year)
-                if cumple_este_ano < hoy:
-                    cumple_este_ano = f_nac.replace(year=hoy.year + 1)
-                
-                dias_faltantes = (cumple_este_ano - hoy).days
-                if 0 <= dias_faltantes <= 30:
-                    alertas_cumple.append({
-                        'nombre': c['nombre'],
-                        'telefono': c['telefono'],
-                        'fecha_cumple': cumple_este_ano.strftime('%d/%m'),
-                        'dias_faltantes': dias_faltantes
-                    })
-            except Exception:
-                pass
 
     conn.close()
 
@@ -479,7 +333,7 @@ def admin_dashboard():
         total_activos=total_activos,
         total_inactivos=total_inactivos,
         servicios_top=servicios_top,
-        alertas=alertas_cumple,
+        alertas=[],
         search_query=search_query
     )
 
@@ -615,6 +469,22 @@ def guardar_nota():
         flash("Nota privada guardada.", "exito")
 
     return redirect(url_for('admin_cliente_detalle', cliente_id=cliente_id))
+
+
+@app.route('/crear-admin-init')
+def crear_admin_init():
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    param_symbol = '%s' if IS_POSTGRES else '?'
+    
+    pwd_hash = generate_password_hash("maru2026")
+    
+    cursor.execute(f"DELETE FROM usuarios_admin WHERE usuario = {param_symbol}", ('admin',))
+    cursor.execute(f"INSERT INTO usuarios_admin (usuario, password_hash) VALUES ({param_symbol}, {param_symbol})", ('admin', pwd_hash))
+    
+    conn.commit()
+    conn.close()
+    return "OK: Usuario admin restaurado con clave maru2026"
 
 
 @app.route('/admin/logout')
