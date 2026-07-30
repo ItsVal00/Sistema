@@ -15,15 +15,20 @@ app.secret_key = os.environ.get('SECRET_KEY', 'maru_secret_key_2026_astrologia')
 
 DB_PATH = 'database.db'
 
-# Carpeta de subida de documentos
-UPLOAD_FOLDER = os.path.join(os.getcwd(), 'uploads')
+# Detectar motor de base de datos
+DB_URL = os.environ.get('DATABASE_URL') or os.environ.get('POSTGRES_URL')
+IS_POSTGRES = bool(DB_URL)
+
+# Carpeta de subida segura (Usa /tmp en Vercel / Serverless)
+if os.environ.get('VERCEL') or IS_POSTGRES:
+    UPLOAD_FOLDER = '/tmp/uploads'
+else:
+    UPLOAD_FOLDER = os.path.join(os.getcwd(), 'uploads')
+
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 ALLOWED_EXTENSIONS = {'pdf', 'png', 'jpg', 'jpeg'}
 
-# Detectar motor de base de datos
-DB_URL = os.environ.get('DATABASE_URL') or os.environ.get('POSTGRES_URL')
-IS_POSTGRES = bool(DB_URL)
 
 if IS_POSTGRES:
     import psycopg2
@@ -74,8 +79,6 @@ def client_required(f):
 
 @app.route('/')
 def index():
-    # FIX: antes redirigía directo al formulario, saltándose el aviso
-    # de privacidad / landing. Ahora se muestra landing.html en la raíz.
     return render_template('landing.html')
 
 
@@ -189,7 +192,6 @@ def mi_cuenta():
 
     conn.close()
 
-    # Próxima cita (primera fecha futura) y última cita (más reciente pasada)
     hoy = datetime.now().strftime('%Y-%m-%d')
     proxima_cita = None
     ultima_cita = None
@@ -200,7 +202,6 @@ def mi_cuenta():
     if pasadas:
         ultima_cita = sorted(pasadas, key=lambda c: c['fecha_cita'], reverse=True)[0]
 
-    # FIX: nombre de plantilla corregido (antes: 'mi_cuenta.html', que no existe)
     return render_template(
         'cliente_portal.html',
         cliente=cliente,
@@ -485,7 +486,6 @@ def admin_cliente_detalle(cliente_id):
 
     conn.close()
 
-    # FIX: nombre de plantilla corregido (antes: 'admin_cliente_detalle.html', que no existe)
     return render_template(
         'cliente_detalle.html',
         cliente=cliente,
@@ -517,7 +517,7 @@ def guardar_nota():
 
 
 # -------------------------------------------------------------
-# DOCUMENTOS: SUBIR / VER / ELIMINAR (rutas nuevas)
+# DOCUMENTOS: SUBIR / VER / ELIMINAR (rutas seguras)
 # -------------------------------------------------------------
 
 @app.route('/uploads/<path:filename>')
@@ -539,23 +539,27 @@ def subir_documento(cliente_id):
         flash("Tipo de archivo no permitido (solo PDF, PNG, JPG).", "error")
         return redirect(url_for('admin_cliente_detalle', cliente_id=cliente_id))
 
-    filename = secure_filename(archivo.filename)
-    filename = f"{cliente_id}_{int(datetime.now().timestamp())}_{filename}"
-    archivo.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+    try:
+        filename = secure_filename(archivo.filename)
+        filename = f"{cliente_id}_{int(datetime.now().timestamp())}_{filename}"
+        archivo.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
 
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    param_symbol = '%s' if IS_POSTGRES else '?'
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        param_symbol = '%s' if IS_POSTGRES else '?'
 
-    cursor.execute(f'''
-        INSERT INTO documentos (cliente_id, tipo_doc, nombre_archivo)
-        VALUES ({param_symbol}, {param_symbol}, {param_symbol})
-    ''', (cliente_id, tipo_doc, filename))
+        cursor.execute(f'''
+            INSERT INTO documentos (cliente_id, tipo_doc, nombre_archivo)
+            VALUES ({param_symbol}, {param_symbol}, {param_symbol})
+        ''', (cliente_id, tipo_doc, filename))
 
-    conn.commit()
-    conn.close()
+        conn.commit()
+        conn.close()
 
-    flash("Documento subido correctamente.", "exito")
+        flash("Documento subido correctamente.", "exito")
+    except Exception as e:
+        flash(f"Error al guardar el archivo: {str(e)}", "error")
+
     return redirect(url_for('admin_cliente_detalle', cliente_id=cliente_id))
 
 
@@ -569,7 +573,6 @@ def eliminar_documento(doc_id):
     cursor = conn.cursor()
     param_symbol = '%s' if IS_POSTGRES else '?'
 
-    # Valida la clave contra el usuario admin actualmente logueado
     cursor.execute(f"SELECT * FROM usuarios_admin WHERE usuario = {param_symbol}", (session.get('admin_usuario'),))
     admin = cursor.fetchone()
 
@@ -584,7 +587,10 @@ def eliminar_documento(doc_id):
     if doc:
         filepath = os.path.join(app.config['UPLOAD_FOLDER'], doc['nombre_archivo'])
         if os.path.exists(filepath):
-            os.remove(filepath)
+            try:
+                os.remove(filepath)
+            except Exception:
+                pass
         cursor.execute(f"DELETE FROM documentos WHERE id = {param_symbol}", (doc_id,))
         conn.commit()
         flash("Documento eliminado correctamente.", "exito")
