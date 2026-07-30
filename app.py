@@ -40,8 +40,7 @@ def init_db():
     conn = get_db_connection()
     cursor = conn.cursor()
     
-    # En Postgres las tablas se manejan desde la consola SQL o script previo, 
-    # pero aseguramos la estandarización aquí para SQLite local.
+    # Si estamos en SQLite local, creamos la estructura automáticamente
     if not IS_POSTGRES:
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS usuarios_admin (
@@ -129,7 +128,7 @@ def init_db():
             );
         ''')
         
-        # Crear admin inicial si no existe
+        # Crear admin inicial local
         cursor.execute("SELECT * FROM usuarios_admin WHERE usuario = 'admin'")
         if not cursor.fetchone():
             default_hash = generate_password_hash("maru2026")
