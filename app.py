@@ -566,15 +566,31 @@ def guardar_nota(cliente_id):
 @app.route('/admin/agendar_cita', methods=['POST'])
 @admin_required
 def agendar_cita():
-    cliente_id = request.form.get('cliente_id')
+    cliente_id = request.form.get('cliente_id') # Puede venir vacío si es manual
+    nombre_manual = request.form.get('nombre_manual', '').strip()
+    contacto_manual = request.form.get('contacto_manual', '').strip()
+    
     servicio = request.form.get('servicio')
     fecha = request.form.get('fecha_cita')
     hora = request.form.get('hora_cita')
     link = request.form.get('link_reunion')
-    
-    conn = sqlite3.connect(DB_PATH)
+    notas = request.form.get('notas', '')
+
+    conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute('INSERT INTO citas (cliente_id, servicio, fecha_cita, hora_cita, link_reunion) VALUES (?, ?, ?, ?, ?)', (cliente_id, servicio, fecha, hora, link))
+    
+    # Si seleccionó "Cliente no registrado / Manual"
+    if not cliente_id or cliente_id == "manual":
+        cursor.execute('''
+            INSERT INTO citas (cliente_id, servicio, fecha_cita, hora_cita, link_reunion, notas, nombre_manual, contacto_manual) 
+            VALUES (NULL, %, %, %, %, %, %, %)
+        ''', (servicio, fecha, hora, link, notas, nombre_manual, contacto_manual))
+    else:
+        cursor.execute('''
+            INSERT INTO citas (cliente_id, servicio, fecha_cita, hora_cita, link_reunion, notas) 
+            VALUES (%, %, %, %, %, %)
+        ''', (cliente_id, servicio, fecha, hora, link, notas))
+        
     conn.commit()
     conn.close()
     flash("Cita agendada correctamente.", "exito")
