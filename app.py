@@ -1,3 +1,4 @@
+import secrets
 import os
 import json
 import sqlite3
@@ -94,13 +95,13 @@ def registro_form():
         motivo = request.form.get('motivo_consulta', '').strip()
         referido_por = request.form.get('referido_por', '').strip()
         servicios_seleccionados = request.form.getlist('servicios')
-        password = request.form.get('password')
 
-        if not nombre or not telefono or not email or not fecha_nac or not password:
+        if not nombre or not telefono or not email or not fecha_nac:
             flash("Por favor completa los campos obligatorios.", "error")
             return render_template('formulario.html')
 
-        password_hash = generate_password_hash(password)
+        # Generar un token único seguro
+        token_acceso = secrets.token_urlsafe(32)
 
         conn = get_db_connection()
         cursor = conn.cursor()
@@ -109,15 +110,15 @@ def registro_form():
             param_symbol = '%s' if IS_POSTGRES else '?'
 
             query_cliente = f'''
-                INSERT INTO clientes (nombre, telefono, email, fecha_nacimiento, hora_nacimiento, lugar_nacimiento, motivo_consulta, referido_por, password_hash)
+                INSERT INTO clientes (nombre, telefono, email, fecha_nacimiento, hora_nacimiento, lugar_nacimiento, motivo_consulta, referido_por, token_acceso)
                 VALUES ({param_symbol}, {param_symbol}, {param_symbol}, {param_symbol}, {param_symbol}, {param_symbol}, {param_symbol}, {param_symbol}, {param_symbol})
             '''
             if IS_POSTGRES:
                 query_cliente += " RETURNING id"
-                cursor.execute(query_cliente, (nombre, telefono, email, fecha_nac, hora_nac, lugar_nac, motivo, referido_por, password_hash))
+                cursor.execute(query_cliente, (nombre, telefono, email, fecha_nac, hora_nac, lugar_nac, motivo, referido_por, token_acceso))
                 cliente_id = cursor.fetchone()['id']
             else:
-                cursor.execute(query_cliente, (nombre, telefono, email, fecha_nac, hora_nac, lugar_nac, motivo, referido_por, password_hash))
+                cursor.execute(query_cliente, (nombre, telefono, email, fecha_nac, hora_nac, lugar_nac, motivo, referido_por, token_acceso))
                 cliente_id = cursor.lastrowid
 
             for servicio in servicios_seleccionados:
@@ -128,8 +129,9 @@ def registro_form():
                 cursor.execute(query_servicio, (cliente_id, servicio))
 
             conn.commit()
-            flash("¡Registro completado con éxito! Ya puedes iniciar sesión en tu portal.", "exito")
-            return redirect(url_for('cliente_login'))
+            
+            # Redirigir directamente a su dashboard único tras llenar el formulario
+            return redirect(url_for('mi_cuenta_token', token=token_acceso))
 
         except Exception as e:
             conn.rollback()
@@ -170,16 +172,26 @@ def cliente_login():
     return render_template('cliente_login.html')
 
 
-@app.route('/mi-cuenta')
-@client_required
-def mi_cuenta():
-    cliente_id = session.get('cliente_id')
+@app.route('/mi-cuenta/<token>')
+def mi_cuenta_token(token):
     conn = get_db_connection()
     cursor = conn.cursor()
     param_symbol = '%s' if IS_POSTGRES else '?'
 
-    cursor.execute(f"SELECT * FROM clientes WHERE id = {param_symbol}", (cliente_id,))
+    cursor.execute(f"SELECT * FROM clientes WHERE token_acceso = {param_symbol}", (token,))
     cliente = cursor.fetchone()
+
+    if not cliente:
+        conn.close()
+        flash("El enlace de acceso no es válido o ha expirado.", "error")
+        return redirect(url_for('registro_form'))
+
+    # Guardar en sesión
+    session['client_logged_in'] = True
+    session['cliente_id'] = cliente['id']
+    session['cliente_nombre'] = cliente['nombre']
+
+    cliente_id = cliente['id']
 
     cursor.execute(f"SELECT * FROM citas WHERE cliente_id = {param_symbol} ORDER BY fecha_cita DESC", (cliente_id,))
     citas = cursor.fetchall()
