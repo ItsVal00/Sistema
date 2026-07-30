@@ -121,6 +121,7 @@ def init_db():
             hora_nacimiento TEXT,
             lugar_nacimiento TEXT,
             motivo_consulta TEXT,
+            referido_por TEXT,
             password_hash TEXT,
             fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
@@ -130,6 +131,8 @@ def init_db():
     columnas = [column[1] for column in cursor.fetchall()]
     if 'password_hash' not in columnas:
         cursor.execute("ALTER TABLE clientes ADD COLUMN password_hash TEXT")
+    if 'referido_por' not in columnas:
+        cursor.execute("ALTER TABLE clientes ADD COLUMN referido_por TEXT")
 
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS servicios_cliente (
@@ -223,6 +226,7 @@ def registrar_cliente():
     hora_nac = request.form.get('hora_nacimiento')
     lugar_nac = request.form.get('lugar_nacimiento')
     motivo = request.form.get('motivo_consulta')
+    referido_por = request.form.get('referido_por', '').strip()
     password = request.form.get('password', '').strip()
     
     servicios_seleccionados = request.form.getlist('servicios')
@@ -233,9 +237,9 @@ def registrar_cliente():
     pwd_hash = generate_password_hash(password) if password else None
 
     cursor.execute('''
-        INSERT INTO clientes (nombre, telefono, email, fecha_nacimiento, hora_nacimiento, lugar_nacimiento, motivo_consulta, password_hash)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-    ''', (nombre, telefono, email, fecha_nac, hora_nac, lugar_nac, motivo, pwd_hash))
+        INSERT INTO clientes (nombre, telefono, email, fecha_nacimiento, hora_nacimiento, lugar_nacimiento, motivo_consulta, referido_por, password_hash)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ''', (nombre, telefono, email, fecha_nac, hora_nac, lugar_nac, motivo, referido_por, pwd_hash))
     
     cliente_id = cursor.lastrowid
     for servicio in servicios_seleccionados:
@@ -367,8 +371,8 @@ def admin_dashboard():
     cursor = conn.cursor()
     
     if search_query:
-        cursor.execute("SELECT * FROM clientes WHERE nombre LIKE ? OR telefono LIKE ? OR email LIKE ? ORDER BY id DESC", 
-                       (f'%{search_query}%', f'%{search_query}%', f'%{search_query}%'))
+        cursor.execute("SELECT * FROM clientes WHERE nombre LIKE ? OR telefono LIKE ? OR email LIKE ? OR referido_por LIKE ? ORDER BY id DESC", 
+                       (f'%{search_query}%', f'%{search_query}%', f'%{search_query}%', f'%{search_query}%'))
     else:
         cursor.execute("SELECT * FROM clientes ORDER BY id DESC")
     clientes = [dict(row) for row in cursor.fetchall()]
@@ -475,13 +479,13 @@ def admin_dashboard():
 def exportar_clientes():
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
-    cursor.execute("SELECT id, nombre, telefono, email, fecha_nacimiento, hora_nacimiento, lugar_nacimiento, fecha_registro FROM clientes")
+    cursor.execute("SELECT id, nombre, telefono, email, fecha_nacimiento, hora_nacimiento, lugar_nacimiento, referido_por, fecha_registro FROM clientes")
     filas = cursor.fetchall()
     conn.close()
 
     output = io.StringIO()
     writer = csv.writer(output)
-    writer.writerow(['ID', 'Nombre', 'Telefono', 'Email', 'Fecha Nacimiento', 'Hora', 'Lugar', 'Fecha Registro'])
+    writer.writerow(['ID', 'Nombre', 'Telefono', 'Email', 'Fecha Nacimiento', 'Hora', 'Lugar', 'Referido Por', 'Fecha Registro'])
     writer.writerows(filas)
 
     return Response(
