@@ -4,6 +4,7 @@ import os
 import csv
 import io
 import smtplib
+import tempfile
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from datetime import datetime, timedelta
@@ -20,7 +21,14 @@ SMTP_PORT = 587
 EMAIL_EMISOR = "tu_correo@gmail.com"
 EMAIL_PASSWORD = "tu_app_password"
 
-UPLOAD_FOLDER = os.path.join(os.path.dirname(__file__), 'uploads')
+# --- CONFIGURACIÓN DE RUTA SEGURA PARA VERCEL (Read-Only Filesystem) ---
+if os.environ.get('VERCEL'):
+    DB_PATH = os.path.join(tempfile.gettempdir(), 'database.db')
+    UPLOAD_FOLDER = os.path.join(tempfile.gettempdir(), 'uploads')
+else:
+    DB_PATH = 'database.db'
+    UPLOAD_FOLDER = os.path.join(os.path.dirname(__file__), 'uploads')
+
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 ALLOWED_EXTENSIONS = {'pdf', 'png', 'jpg', 'jpeg'}
@@ -87,7 +95,7 @@ def enviar_notificacion_email(destinatario, nombre_cliente, tipo_doc):
 
 # --- BASE DE DATOS ---
 def init_db():
-    conn = sqlite3.connect('database.db')
+    conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     
     cursor.execute('''
@@ -118,7 +126,6 @@ def init_db():
         )
     ''')
     
-    # Migración por si la tabla clientes ya existía sin la columna password_hash
     cursor.execute("PRAGMA table_info(clientes)")
     columnas = [column[1] for column in cursor.fetchall()]
     if 'password_hash' not in columnas:
@@ -203,12 +210,10 @@ init_db()
 def landing():
     return render_template('landing.html')
 
-# 2. Formulario de Registro Público
 @app.route('/registro-form')
 def formulario():
     return render_template('formulario.html')
 
-# 3. Procesar el Registro
 @app.route('/registro', methods=['POST'])
 def registrar_cliente():
     nombre = request.form.get('nombre')
@@ -222,7 +227,7 @@ def registrar_cliente():
     
     servicios_seleccionados = request.form.getlist('servicios')
 
-    conn = sqlite3.connect('database.db')
+    conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     
     pwd_hash = generate_password_hash(password) if password else None
@@ -244,7 +249,7 @@ def registrar_cliente():
 
 @app.route('/mi-cuenta', methods=['GET', 'POST'])
 def portal_cliente():
-    conn = sqlite3.connect('database.db')
+    conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
 
@@ -256,7 +261,6 @@ def portal_cliente():
         cliente = cursor.fetchone()
         
         if cliente:
-            # Si el cliente tiene contraseña guardada, validarla
             if cliente['password_hash']:
                 if check_password_hash(cliente['password_hash'], password):
                     session['cliente_id'] = cliente['id']
@@ -265,7 +269,6 @@ def portal_cliente():
                     conn.close()
                     return render_template('cliente_login.html')
             else:
-                # Si se registró antes de implementar contraseña
                 session['cliente_id'] = cliente['id']
         else:
             flash("No encontramos ningún registro con ese correo o WhatsApp.", "error")
@@ -279,6 +282,12 @@ def portal_cliente():
 
     cursor.execute("SELECT * FROM clientes WHERE id = ?", (cliente_id,))
     cliente = cursor.fetchone()
+
+    if not cliente:
+        session.pop('cliente_id', None)
+        conn.close()
+        flash("Sesión caducada o registro no encontrado.", "error")
+        return render_template('cliente_login.html')
 
     cursor.execute("SELECT * FROM documentos WHERE cliente_id = ? ORDER BY id DESC", (cliente_id,))
     documentos = cursor.fetchall()
@@ -299,7 +308,7 @@ def solicitar_servicio():
         return redirect(url_for('portal_cliente'))
     
     servicio_nombre = request.form.get('servicio_nombre')
-    conn = sqlite3.connect('database.db')
+    conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     cursor.execute('INSERT INTO solicitudes_servicio (cliente_id, servicio_nombre) VALUES (?, ?)', (cliente_id, servicio_nombre))
     conn.commit()
@@ -322,7 +331,7 @@ def admin_login():
         usuario = request.form.get('usuario', '').strip()
         password = request.form.get('password', '').strip()
         
-        conn = sqlite3.connect('database.db')
+        conn = sqlite3.connect(DB_PATH)
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
         cursor.execute("SELECT * FROM usuarios_admin WHERE usuario = ?", (usuario,))
@@ -353,7 +362,7 @@ def admin_logout():
 def admin_dashboard():
     search_query = request.args.get('q', '').strip()
     
-    conn = sqlite3.connect('database.db')
+    conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
     
@@ -464,7 +473,7 @@ def admin_dashboard():
 @app.route('/admin/exportar_clientes')
 @admin_required
 def exportar_clientes():
-    conn = sqlite3.connect('database.db')
+    conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     cursor.execute("SELECT id, nombre, telefono, email, fecha_nacimiento, hora_nacimiento, lugar_nacimiento, fecha_registro FROM clientes")
     filas = cursor.fetchall()
@@ -484,7 +493,7 @@ def exportar_clientes():
 @app.route('/admin/exportar_pagos')
 @admin_required
 def exportar_pagos():
-    conn = sqlite3.connect('database.db')
+    conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     cursor.execute('''
         SELECT p.id, c.nombre, p.concepto, p.monto, p.metodo_pago, p.fecha_pago 
@@ -507,12 +516,17 @@ def exportar_pagos():
 @app.route('/admin/cliente/<int:cliente_id>')
 @admin_required
 def cliente_detalle(cliente_id):
-    conn = sqlite3.connect('database.db')
+    conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
     
     cursor.execute("SELECT * FROM clientes WHERE id = ?", (cliente_id,))
     cliente = cursor.fetchone()
+    
+    if not cliente:
+        conn.close()
+        flash("El cliente consultado no existe o fue eliminado.", "error")
+        return redirect(url_for('admin_dashboard'))
     
     cursor.execute("SELECT servicio_nombre FROM servicios_cliente WHERE cliente_id = ?", (cliente_id,))
     servicios = [row['servicio_nombre'] for row in cursor.fetchall()]
@@ -537,7 +551,7 @@ def cliente_detalle(cliente_id):
 def guardar_nota(cliente_id):
     contenido = request.form.get('contenido')
     if contenido:
-        conn = sqlite3.connect('database.db')
+        conn = sqlite3.connect(DB_PATH)
         cursor = conn.cursor()
         cursor.execute("INSERT INTO notas_privadas (cliente_id, contenido) VALUES (?, ?)", (cliente_id, contenido))
         conn.commit()
@@ -554,7 +568,7 @@ def agendar_cita():
     hora = request.form.get('hora_cita')
     link = request.form.get('link_reunion')
     
-    conn = sqlite3.connect('database.db')
+    conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     cursor.execute('INSERT INTO citas (cliente_id, servicio, fecha_cita, hora_cita, link_reunion) VALUES (?, ?, ?, ?, ?)', (cliente_id, servicio, fecha, hora, link))
     conn.commit()
@@ -571,7 +585,7 @@ def registrar_pago():
     fecha_pago = request.form.get('fecha_pago')
     metodo_pago = request.form.get('metodo_pago')
 
-    conn = sqlite3.connect('database.db')
+    conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     cursor.execute('INSERT INTO pagos (cliente_id, concepto, monto, fecha_pago, metodo_pago) VALUES (?, ?, ?, ?, ?)', (cliente_id, concepto, monto, fecha_pago, metodo_pago))
     conn.commit()
@@ -582,7 +596,7 @@ def registrar_pago():
 @app.route('/admin/estado_cita/<int:cita_id>/<string:nuevo_estado>')
 @admin_required
 def cambiar_estado_cita(cita_id, nuevo_estado):
-    conn = sqlite3.connect('database.db')
+    conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     cursor.execute("UPDATE citas SET estado = ? WHERE id = ?", (nuevo_estado, cita_id))
     conn.commit()
@@ -592,7 +606,7 @@ def cambiar_estado_cita(cita_id, nuevo_estado):
 @app.route('/admin/estado_solicitud/<int:solicitud_id>/<string:nuevo_estado>')
 @admin_required
 def cambiar_estado_solicitud(solicitud_id, nuevo_estado):
-    conn = sqlite3.connect('database.db')
+    conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     cursor.execute("UPDATE solicitudes_servicio SET estado = ? WHERE id = ?", (nuevo_estado, solicitud_id))
     conn.commit()
@@ -610,7 +624,7 @@ def subir_documento(cliente_id):
         filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         file.save(filepath)
         
-        conn = sqlite3.connect('database.db')
+        conn = sqlite3.connect(DB_PATH)
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
         cursor.execute('INSERT INTO documentos (cliente_id, nombre_archivo, tipo_doc) VALUES (?, ?, ?)', (cliente_id, filename, tipo_doc))
@@ -635,7 +649,7 @@ def eliminar_documento(doc_id):
         flash("Contraseña incorrecta.", "error")
         return redirect(url_for('cliente_detalle', cliente_id=cliente_id))
     
-    conn = sqlite3.connect('database.db')
+    conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
     cursor.execute("SELECT nombre_archivo FROM documentos WHERE id = ?", (doc_id,))
