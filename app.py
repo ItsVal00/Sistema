@@ -4,15 +4,22 @@ import sqlite3
 from datetime import datetime
 from functools import wraps
 from flask import (
-    Flask, render_template, request, redirect, 
-    url_for, flash, session, Response
+    Flask, render_template, request, redirect,
+    url_for, flash, session, Response, send_from_directory
 )
 from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'maru_secret_key_2026_astrologia')
 
 DB_PATH = 'database.db'
+
+# Carpeta de subida de documentos
+UPLOAD_FOLDER = os.path.join(os.getcwd(), 'uploads')
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+ALLOWED_EXTENSIONS = {'pdf', 'png', 'jpg', 'jpeg'}
 
 # Detectar motor de base de datos
 DB_URL = os.environ.get('DATABASE_URL') or os.environ.get('POSTGRES_URL')
@@ -34,6 +41,10 @@ def get_db_connection():
         conn = sqlite3.connect(DB_PATH)
         conn.row_factory = sqlite3.Row
         return conn
+
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
 # Decoradores de Autenticación
@@ -63,7 +74,9 @@ def client_required(f):
 
 @app.route('/')
 def index():
-    return redirect(url_for('registro_form'))
+    # FIX: antes redirigía directo al formulario, saltándose el aviso
+    # de privacidad / landing. Ahora se muestra landing.html en la raíz.
+    return render_template('landing.html')
 
 
 @app.route('/registro-form', methods=['GET', 'POST'])
@@ -91,7 +104,7 @@ def registro_form():
 
         try:
             param_symbol = '%s' if IS_POSTGRES else '?'
-            
+
             query_cliente = f'''
                 INSERT INTO clientes (nombre, telefono, email, fecha_nacimiento, hora_nacimiento, lugar_nacimiento, motivo_consulta, referido_por, password_hash)
                 VALUES ({param_symbol}, {param_symbol}, {param_symbol}, {param_symbol}, {param_symbol}, {param_symbol}, {param_symbol}, {param_symbol}, {param_symbol})
@@ -176,7 +189,27 @@ def mi_cuenta():
 
     conn.close()
 
-    return render_template('mi_cuenta.html', cliente=cliente, citas=citas, documentos=documentos, pagos=pagos)
+    # Próxima cita (primera fecha futura) y última cita (más reciente pasada)
+    hoy = datetime.now().strftime('%Y-%m-%d')
+    proxima_cita = None
+    ultima_cita = None
+    futuras = [c for c in citas if c['fecha_cita'] and c['fecha_cita'] >= hoy]
+    pasadas = [c for c in citas if c['fecha_cita'] and c['fecha_cita'] < hoy]
+    if futuras:
+        proxima_cita = sorted(futuras, key=lambda c: c['fecha_cita'])[0]
+    if pasadas:
+        ultima_cita = sorted(pasadas, key=lambda c: c['fecha_cita'], reverse=True)[0]
+
+    # FIX: nombre de plantilla corregido (antes: 'mi_cuenta.html', que no existe)
+    return render_template(
+        'cliente_portal.html',
+        cliente=cliente,
+        citas=citas,
+        documentos=documentos,
+        pagos=pagos,
+        proxima_cita=proxima_cita,
+        ultima_cita=ultima_cita
+    )
 
 
 @app.route('/solicitar_servicio', methods=['POST'])
@@ -251,7 +284,7 @@ def admin_dashboard():
     if search_query:
         like_str = f"%{search_query}%"
         query_clientes = f'''
-            SELECT * FROM clientes 
+            SELECT * FROM clientes
             WHERE nombre LIKE {param_symbol} OR telefono LIKE {param_symbol} OR email LIKE {param_symbol} OR referido_por LIKE {param_symbol}
             ORDER BY nombre ASC
         '''
@@ -313,9 +346,9 @@ def admin_dashboard():
 
     # Top Servicios
     cursor.execute('''
-        SELECT servicio_nombre, COUNT(*) AS total 
-        FROM servicios_cliente 
-        GROUP BY servicio_nombre 
+        SELECT servicio_nombre, COUNT(*) AS total
+        FROM servicios_cliente
+        GROUP BY servicio_nombre
         ORDER BY total DESC LIMIT 5
     ''')
     servicios_top = cursor.fetchall()
@@ -333,6 +366,8 @@ def admin_dashboard():
         total_activos=total_activos,
         total_inactivos=total_inactivos,
         servicios_top=servicios_top,
+        top_signos=[],
+        top_lugares=[],
         alertas=[],
         search_query=search_query
     )
@@ -344,7 +379,7 @@ def agendar_cita():
     cliente_id_raw = request.form.get('cliente_id')
     nombre_manual = request.form.get('nombre_manual', '').strip()
     contacto_manual = request.form.get('contacto_manual', '').strip()
-    
+
     servicio = request.form.get('servicio')
     fecha = request.form.get('fecha_cita')
     hora = request.form.get('hora_cita')
@@ -354,10 +389,10 @@ def agendar_cita():
     conn = get_db_connection()
     cursor = conn.cursor()
     param_symbol = '%s' if IS_POSTGRES else '?'
-    
+
     if not cliente_id_raw or cliente_id_raw == "manual":
         cursor.execute(f'''
-            INSERT INTO citas (cliente_id, servicio, fecha_cita, hora_cita, link_reunion, notas, nombre_manual, contacto_manual) 
+            INSERT INTO citas (cliente_id, servicio, fecha_cita, hora_cita, link_reunion, notas, nombre_manual, contacto_manual)
             VALUES (NULL, {param_symbol}, {param_symbol}, {param_symbol}, {param_symbol}, {param_symbol}, {param_symbol}, {param_symbol})
         ''', (servicio, fecha, hora, link, notas, nombre_manual, contacto_manual))
     else:
@@ -367,10 +402,10 @@ def agendar_cita():
             cliente_id = None
 
         cursor.execute(f'''
-            INSERT INTO citas (cliente_id, servicio, fecha_cita, hora_cita, link_reunion, notas) 
+            INSERT INTO citas (cliente_id, servicio, fecha_cita, hora_cita, link_reunion, notas)
             VALUES ({param_symbol}, {param_symbol}, {param_symbol}, {param_symbol}, {param_symbol}, {param_symbol})
         ''', (cliente_id, servicio, fecha, hora, link, notas))
-        
+
     conn.commit()
     conn.close()
     flash("Cita agendada correctamente.", "exito")
@@ -433,7 +468,8 @@ def admin_cliente_detalle(cliente_id):
         return redirect(url_for('admin_dashboard'))
 
     cursor.execute(f"SELECT * FROM servicios_cliente WHERE cliente_id = {param_symbol}", (cliente_id,))
-    servicios = cursor.fetchall()
+    servicios_rows = cursor.fetchall()
+    servicios = [s['servicio_nombre'] for s in servicios_rows]
 
     cursor.execute(f"SELECT * FROM citas WHERE cliente_id = {param_symbol} ORDER BY fecha_cita DESC", (cliente_id,))
     citas = cursor.fetchall()
@@ -449,7 +485,16 @@ def admin_cliente_detalle(cliente_id):
 
     conn.close()
 
-    return render_template('admin_cliente_detalle.html', cliente=cliente, servicios=servicios, citas=citas, documentos=documentos, pagos=pagos, notas=notas)
+    # FIX: nombre de plantilla corregido (antes: 'admin_cliente_detalle.html', que no existe)
+    return render_template(
+        'cliente_detalle.html',
+        cliente=cliente,
+        servicios=servicios,
+        citas=citas,
+        documentos=documentos,
+        pagos=pagos,
+        notas=notas
+    )
 
 
 @app.route('/admin/guardar_nota', methods=['POST'])
@@ -471,17 +516,96 @@ def guardar_nota():
     return redirect(url_for('admin_cliente_detalle', cliente_id=cliente_id))
 
 
+# -------------------------------------------------------------
+# DOCUMENTOS: SUBIR / VER / ELIMINAR (rutas nuevas)
+# -------------------------------------------------------------
+
+@app.route('/uploads/<path:filename>')
+def uploaded_file(filename):
+    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+
+
+@app.route('/admin/subir_documento/<int:cliente_id>', methods=['POST'])
+@admin_required
+def subir_documento(cliente_id):
+    tipo_doc = request.form.get('tipo_doc')
+    archivo = request.files.get('archivo')
+
+    if not archivo or archivo.filename == '':
+        flash("Debes seleccionar un archivo.", "error")
+        return redirect(url_for('admin_cliente_detalle', cliente_id=cliente_id))
+
+    if not allowed_file(archivo.filename):
+        flash("Tipo de archivo no permitido (solo PDF, PNG, JPG).", "error")
+        return redirect(url_for('admin_cliente_detalle', cliente_id=cliente_id))
+
+    filename = secure_filename(archivo.filename)
+    filename = f"{cliente_id}_{int(datetime.now().timestamp())}_{filename}"
+    archivo.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    param_symbol = '%s' if IS_POSTGRES else '?'
+
+    cursor.execute(f'''
+        INSERT INTO documentos (cliente_id, tipo_doc, nombre_archivo)
+        VALUES ({param_symbol}, {param_symbol}, {param_symbol})
+    ''', (cliente_id, tipo_doc, filename))
+
+    conn.commit()
+    conn.close()
+
+    flash("Documento subido correctamente.", "exito")
+    return redirect(url_for('admin_cliente_detalle', cliente_id=cliente_id))
+
+
+@app.route('/admin/eliminar_documento/<int:doc_id>', methods=['POST'])
+@admin_required
+def eliminar_documento(doc_id):
+    cliente_id = request.form.get('cliente_id')
+    password = request.form.get('password', '')
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    param_symbol = '%s' if IS_POSTGRES else '?'
+
+    # Valida la clave contra el usuario admin actualmente logueado
+    cursor.execute(f"SELECT * FROM usuarios_admin WHERE usuario = {param_symbol}", (session.get('admin_usuario'),))
+    admin = cursor.fetchone()
+
+    if not admin or not check_password_hash(admin['password_hash'], password):
+        conn.close()
+        flash("Clave incorrecta. No se eliminó el documento.", "error")
+        return redirect(url_for('admin_cliente_detalle', cliente_id=cliente_id))
+
+    cursor.execute(f"SELECT * FROM documentos WHERE id = {param_symbol}", (doc_id,))
+    doc = cursor.fetchone()
+
+    if doc:
+        filepath = os.path.join(app.config['UPLOAD_FOLDER'], doc['nombre_archivo'])
+        if os.path.exists(filepath):
+            os.remove(filepath)
+        cursor.execute(f"DELETE FROM documentos WHERE id = {param_symbol}", (doc_id,))
+        conn.commit()
+        flash("Documento eliminado correctamente.", "exito")
+    else:
+        flash("Documento no encontrado.", "error")
+
+    conn.close()
+    return redirect(url_for('admin_cliente_detalle', cliente_id=cliente_id))
+
+
 @app.route('/crear-admin-init')
 def crear_admin_init():
     conn = get_db_connection()
     cursor = conn.cursor()
     param_symbol = '%s' if IS_POSTGRES else '?'
-    
+
     pwd_hash = generate_password_hash("maru2026")
-    
+
     cursor.execute(f"DELETE FROM usuarios_admin WHERE usuario = {param_symbol}", ('admin',))
     cursor.execute(f"INSERT INTO usuarios_admin (usuario, password_hash) VALUES ({param_symbol}, {param_symbol})", ('admin', pwd_hash))
-    
+
     conn.commit()
     conn.close()
     return "OK: Usuario admin restaurado con clave maru2026"
@@ -538,6 +662,7 @@ def exportar_pagos():
         headers={"Content-disposition": "attachment; filename=reporte_pagos_maru.csv"}
     )
 
+
 @app.route('/admin/eliminar_cita/<int:cita_id>')
 @admin_required
 def eliminar_cita(cita_id):
@@ -551,6 +676,7 @@ def eliminar_cita(cita_id):
 
     flash("Cita eliminada correctamente de la agenda.", "exito")
     return redirect(url_for('admin_dashboard'))
+
 
 if __name__ == '__main__':
     app.run(debug=True)
