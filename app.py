@@ -147,29 +147,6 @@ def registro_form():
 # RUTAS DEL CLIENTE (PORTAL PRIVADO)
 # -------------------------------------------------------------
 
-@app.route('/login', methods=['GET', 'POST'])
-def cliente_login():
-    if request.method == 'POST':
-        email = request.form.get('email', '').strip().lower()
-        password = request.form.get('password', '')
-
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        param_symbol = '%s' if IS_POSTGRES else '?'
-
-        cursor.execute(f"SELECT * FROM clientes WHERE email = {param_symbol}", (email,))
-        cliente = cursor.fetchone()
-        conn.close()
-
-        if cliente and check_password_hash(cliente['password_hash'], password):
-            session['client_logged_in'] = True
-            session['cliente_id'] = cliente['id']
-            session['cliente_nombre'] = cliente['nombre']
-            return redirect(url_for('mi_cuenta'))
-
-        flash("Correo o contraseña incorrectos.", "error")
-
-    return render_template('cliente_login.html')
 
 
 @app.route('/mi-cuenta')
@@ -260,14 +237,6 @@ def solicitar_servicio():
 
     return redirect(url_for('mi_cuenta'))
 
-
-@app.route('/logout')
-def cliente_logout():
-    session.pop('client_logged_in', None)
-    session.pop('cliente_id', None)
-    session.pop('cliente_nombre', None)
-    flash("Has cerrado sesión.", "info")
-    return redirect(url_for('cliente_login'))
 
 
 # -------------------------------------------------------------
@@ -493,6 +462,14 @@ def admin_cliente_detalle(cliente_id):
         flash("Cliente no encontrado.", "error")
         return redirect(url_for('admin_dashboard'))
 
+    # Si el cliente antiguo no tiene token por alguna razón, se le genera uno al instante
+    if not cliente['token_acceso']:
+        token_nuevo = secrets.token_urlsafe(32)
+        cursor.execute(f"UPDATE clientes SET token_acceso = {param_symbol} WHERE id = {param_symbol}", (token_nuevo, cliente_id))
+        conn.commit()
+        cursor.execute(f"SELECT * FROM clientes WHERE id = {param_symbol}", (cliente_id,))
+        cliente = cursor.fetchone()
+
     cursor.execute(f"SELECT * FROM servicios_cliente WHERE cliente_id = {param_symbol}", (cliente_id,))
     servicios_rows = cursor.fetchall()
     servicios = [s['servicio_nombre'] for s in servicios_rows]
@@ -520,7 +497,6 @@ def admin_cliente_detalle(cliente_id):
         pagos=pagos,
         notas=notas
     )
-
 
 @app.route('/admin/guardar_nota', methods=['POST'])
 @admin_required
