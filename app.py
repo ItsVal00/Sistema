@@ -538,6 +538,19 @@ def exportar_pagos():
         headers={"Content-disposition": "attachment; filename=reporte_pagos_maru.csv"}
     )
 
+@app.route('/admin/eliminar_cita/<int:cita_id>')
+@admin_required
+def eliminar_cita(cita_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    param_symbol = '%s' if IS_POSTGRES else '?'
+
+    cursor.execute(f"DELETE FROM citas WHERE id = {param_symbol}", (cita_id,))
+    conn.commit()
+    conn.close()
+
+    flash("Cita eliminada correctamente de la agenda.", "exito")
+    return redirect(url_for('admin_dashboard'))
 
 if __name__ == '__main__':
     app.run(debug=True)
