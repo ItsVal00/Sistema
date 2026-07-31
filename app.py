@@ -1,5 +1,6 @@
 import os
 import json
+import base64
 import secrets
 import sqlite3
 from datetime import datetime
@@ -20,12 +21,8 @@ DB_PATH = 'database.db'
 DB_URL = os.environ.get('DATABASE_URL') or os.environ.get('POSTGRES_URL')
 IS_POSTGRES = bool(DB_URL)
 
-# Carpeta de subida segura (Usa /tmp en Vercel / Serverless)
-if os.environ.get('VERCEL') or IS_POSTGRES:
-    UPLOAD_FOLDER = '/tmp/uploads'
-else:
-    UPLOAD_FOLDER = os.path.join(os.getcwd(), 'uploads')
-
+# Carpeta de subida (Fallback local)
+UPLOAD_FOLDER = os.path.join(os.getcwd(), 'uploads')
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 ALLOWED_EXTENSIONS = {'pdf', 'png', 'jpg', 'jpeg'}
@@ -89,7 +86,7 @@ def registro_form():
         codigo_pais = request.form.get('codigo_pais', '+58')
         num_telefono = request.form.get('telefono', '').strip()
         
-        # Concatena el código con el número si el consultante ingresó algo
+        # Concatena el código con el número si ingresó datos
         telefono = f"{codigo_pais} {num_telefono}" if num_telefono else ""
         
         email = request.form.get('email', '').strip().lower()
@@ -144,7 +141,6 @@ def registro_form():
     return render_template('formulario.html')
 
 
-# Redirecciones de seguridad para login antiguo
 @app.route('/login')
 def cliente_login():
     return redirect(url_for('registro_form'))
@@ -606,7 +602,7 @@ def guardar_nota():
 
 
 # -------------------------------------------------------------
-# GESTIÓN DE DOCUMENTOS
+# GESTIÓN DE DOCUMENTOS (ALMACENAMIENTO PERMANENTE EN BASE64)
 # -------------------------------------------------------------
 
 @app.route('/uploads/<path:filename>')
@@ -629,9 +625,10 @@ def subir_documento(cliente_id):
         return redirect(url_for('admin_cliente_detalle', cliente_id=cliente_id))
 
     try:
-        filename = secure_filename(archivo.filename)
-        filename = f"{cliente_id}_{int(datetime.now().timestamp())}_{filename}"
-        archivo.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        # Convertir archivo a Data URL Base64 para persistencia total en Vercel
+        contenido_b64 = base64.b64encode(archivo.read()).decode('utf-8')
+        mimetype = archivo.mimetype or 'application/pdf'
+        data_url = f"data:{mimetype};base64,{contenido_b64}"
 
         conn = get_db_connection()
         cursor = conn.cursor()
@@ -640,12 +637,12 @@ def subir_documento(cliente_id):
         cursor.execute(f'''
             INSERT INTO documentos (cliente_id, tipo_doc, nombre_archivo)
             VALUES ({param_symbol}, {param_symbol}, {param_symbol})
-        ''', (cliente_id, tipo_doc, filename))
+        ''', (cliente_id, tipo_doc, data_url))
 
         conn.commit()
         conn.close()
 
-        flash("Documento subido correctamente.", "exito")
+        flash("Documento subido e integrado correctamente.", "exito")
     except Exception as e:
         flash(f"Error al guardar el archivo: {str(e)}", "error")
 
@@ -670,23 +667,11 @@ def eliminar_documento(doc_id):
         flash("Clave incorrecta. No se eliminó el documento.", "error")
         return redirect(url_for('admin_cliente_detalle', cliente_id=cliente_id))
 
-    cursor.execute(f"SELECT * FROM documentos WHERE id = {param_symbol}", (doc_id,))
-    doc = cursor.fetchone()
-
-    if doc:
-        filepath = os.path.join(app.config['UPLOAD_FOLDER'], doc['nombre_archivo'])
-        if os.path.exists(filepath):
-            try:
-                os.remove(filepath)
-            except Exception:
-                pass
-        cursor.execute(f"DELETE FROM documentos WHERE id = {param_symbol}", (doc_id,))
-        conn.commit()
-        flash("Documento eliminado correctamente.", "exito")
-    else:
-        flash("Documento no encontrado.", "error")
-
+    cursor.execute(f"DELETE FROM documentos WHERE id = {param_symbol}", (doc_id,))
+    conn.commit()
     conn.close()
+
+    flash("Documento eliminado correctamente.", "exito")
     return redirect(url_for('admin_cliente_detalle', cliente_id=cliente_id))
 
 

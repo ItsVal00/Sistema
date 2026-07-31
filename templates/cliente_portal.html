@@ -134,20 +134,13 @@
                             <span class="inline-block bg-purple-500/20 text-purple-300 text-[10px] font-bold px-2.5 py-0.5 rounded-full border border-purple-500/30">
                                 {{ doc.tipo_doc }}
                             </span>
-                            <p class="text-xs font-bold text-slate-200 break-all">{{ doc.nombre_archivo }}</p>
                             <p class="text-[10px] text-slate-500">Subido el {{ doc.fecha_subida }}</p>
                         </div>
 
-                        <!-- Botón Dinámico para Servir Archivos Correctamente -->
-                        <a href="{{ url_for('uploaded_file', filename=doc.nombre_archivo) }}" target="_blank" class="bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs px-4 py-2.5 rounded-xl transition shadow-lg shadow-purple-600/20 flex items-center gap-2 shrink-0 w-full sm:w-auto justify-center">
+                        <!-- Enlace a Base64 / Data URL -->
+                        <a href="{{ doc.nombre_archivo }}" target="_blank" download="Documento_{{ doc.tipo_doc }}" class="bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs px-4 py-2.5 rounded-xl transition shadow-lg shadow-purple-600/20 flex items-center gap-2 shrink-0 w-full sm:w-auto justify-center">
                             <i data-lucide="download" class="w-3.5 h-3.5"></i>
-                            <span>
-                                {% if doc.nombre_archivo.lower().endswith('.pdf') %}
-                                    Ver PDF
-                                {% else %}
-                                    Ver Documento / Imagen
-                                {% endif %}
-                            </span>
+                            <span>Ver / Descargar Documento</span>
                         </a>
                     </div>
                     {% endfor %}

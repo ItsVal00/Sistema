@@ -54,16 +54,18 @@
                     <h1 class="text-2xl font-extrabold text-white uppercase tracking-wide">{{ cliente.nombre }}</h1>
                     <p class="text-xs text-slate-400 mt-1">Registrado el: {{ cliente.fecha_registro }}</p>
                 </div>
+                {% if cliente.telefono %}
                 <a href="https://wa.me/{{ cliente.telefono|replace(' ', '')|replace('-', '')|replace('+', '') }}" target="_blank"
                    class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs px-4 py-2.5 rounded-xl transition shadow-lg shadow-emerald-600/20 flex items-center gap-2">
                     <i data-lucide="message-circle" class="w-4 h-4"></i>
                     <span>WhatsApp Directo</span>
                 </a>
+                {% endif %}
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs text-slate-300 font-medium">
                 <div class="space-y-2 glass-card p-4 rounded-2xl border border-white/5">
-                    <p><strong class="text-slate-400">Teléfono / WhatsApp:</strong> {{ cliente.telefono }}</p>
+                    <p><strong class="text-slate-400">Teléfono / WhatsApp:</strong> {{ cliente.telefono or 'No indicado' }}</p>
                     <p><strong class="text-slate-400">Correo Electrónico:</strong> {{ cliente.email }}</p>
                     <p><strong class="text-slate-400">Referido Por:</strong> {{ cliente.referido_por or 'Ninguno' }}</p>
                 </div>
@@ -91,11 +93,13 @@
                         <i data-lucide="copy" class="w-3.5 h-3.5"></i> Copiar Link
                     </button>
                     
+                    {% if cliente.telefono %}
                     <a href="https://wa.me/{{ cliente.telefono|replace(' ', '')|replace('-', '')|replace('+', '') }}?text=¡Hola%20{{ cliente.nombre.split(' ')[0] }}!%20Aquí%20tienes%20el%20enlace%20directo%20a%20tu%20portal%20astrológico:%20https://marugonzalez.vercel.app/mi-cuenta/{{ cliente.token_acceso }}" 
                        target="_blank" 
                        class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-3 py-2 rounded-xl transition flex items-center gap-1.5 justify-center w-full md:w-auto">
                         <i data-lucide="send" class="w-3.5 h-3.5"></i> Enviar por WhatsApp
                     </a>
+                    {% endif %}
                 </div>
             </div>
 
@@ -155,12 +159,12 @@
                             <span class="bg-purple-500/20 text-purple-300 text-[10px] font-bold px-2 py-0.5 rounded-full border border-purple-500/30">
                                 {{ doc.tipo_doc }}
                             </span>
-                            <p class="font-bold text-white break-all">{{ doc.nombre_archivo }}</p>
                             <p class="text-[10px] text-slate-500">Subido el: {{ doc.fecha_subida }}</p>
                         </div>
                         <div class="flex items-center gap-2">
-                            <a href="/uploads/{{ doc.nombre_archivo }}" target="_blank" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-2 rounded-xl transition">
-                                Ver PDF
+                            <!-- Enlace a Base64 / Data URL -->
+                            <a href="{{ doc.nombre_archivo }}" target="_blank" download="Documento_{{ doc.tipo_doc }}" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-2 rounded-xl transition">
+                                Ver / Descargar Documento
                             </a>
                             <button onclick="document.getElementById('modal-eliminar-{{ doc.id }}').classList.remove('hidden')" class="bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 p-2 rounded-xl transition">
                                 <i data-lucide="trash-2" class="w-4 h-4"></i>
