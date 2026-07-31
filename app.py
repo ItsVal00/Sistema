@@ -459,6 +459,33 @@ def eliminar_cita(cita_id):
     flash("Cita eliminada correctamente de la agenda.", "exito")
     return redirect(url_for('admin_dashboard'))
 
+@app.route('/admin/actualizar_fecha_cita', methods=['POST'])
+@admin_required
+def actualizar_fecha_cita():
+    data = request.get_json() or {}
+    cita_id = data.get('id')
+    nueva_fecha_hora = data.get('start') # Formato 'YYYY-MM-DDTHH:MM:SS'
+
+    if cita_id and nueva_fecha_hora:
+        parts = nueva_fecha_hora.split('T')
+        fecha = parts[0]
+        hora = parts[1][:5] if len(parts) > 1 else '00:00'
+
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        param_symbol = '%s' if IS_POSTGRES else '?'
+
+        cursor.execute(f'''
+            UPDATE citas 
+            SET fecha_cita = {param_symbol}, hora_cita = {param_symbol} 
+            WHERE id = {param_symbol}
+        ''', (fecha, hora, cita_id))
+
+        conn.commit()
+        conn.close()
+        return {"status": "ok"}
+
+    return {"status": "error"}, 400
 
 @app.route('/admin/registrar_pago', methods=['POST'])
 @admin_required

@@ -10,13 +10,11 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
-    <!-- FullCalendar -->
+    <!-- FullCalendar JS + Plugins -->
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
 
     <style>
-        body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-        }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
         .glass-panel {
             background: rgba(30, 41, 59, 0.7);
             backdrop-filter: blur(12px);
@@ -35,20 +33,25 @@
             border-color: #a855f7;
             box-shadow: 0 0 15px rgba(168, 85, 247, 0.25);
         }
-        ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
+
+        /* Estilos FullCalendar Neón */
+        .fc {
+            --fc-border-color: rgba(255, 255, 255, 0.08);
+            --fc-button-bg-color: rgba(147, 51, 234, 0.2);
+            --fc-button-border-color: rgba(147, 51, 234, 0.4);
+            --fc-button-hover-bg-color: rgba(147, 51, 234, 0.4);
+            --fc-button-active-bg-color: #9333ea;
+            --fc-today-bg-color: rgba(147, 51, 234, 0.1);
+            font-size: 0.78rem;
         }
-        ::-webkit-scrollbar-track {
-            background: rgba(15, 23, 42, 0.5);
-        }
-        ::-webkit-scrollbar-thumb {
-            background: rgba(168, 85, 247, 0.3);
-            border-radius: 9999px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: rgba(168, 85, 247, 0.6);
-        }
+        .fc-col-header-cell-cushion, .fc-daygrid-day-number { color: #cbd5e1; font-weight: 600; }
+        .fc-event { cursor: pointer; border-radius: 8px; padding: 2px 4px; font-weight: 600; border: none !important; }
+        .fc-theme-standard td, .fc-theme-standard th { border-color: rgba(255, 255, 255, 0.05); }
+
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.5); }
+        ::-webkit-scrollbar-thumb { background: rgba(168, 85, 247, 0.3); border-radius: 9999px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(168, 85, 247, 0.6); }
     </style>
 </head>
 <body class="bg-[#0b0f19] text-slate-100 min-h-screen flex flex-col md:flex-row antialiased selection:bg-purple-500 selection:text-white">
@@ -89,7 +92,7 @@
                 </button>
                 <button onclick="seleccionarOpcion('sec-agenda')" class="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl hover:bg-white/5 text-slate-300 hover:text-purple-300 border border-transparent hover:border-white/5 transition-all group">
                     <i data-lucide="calendar" class="w-4 h-4 text-purple-400 group-hover:scale-110 transition-transform"></i>
-                    <span>Agenda & Calendario</span>
+                    <span>Agenda Dinámica</span>
                 </button>
                 <button onclick="seleccionarOpcion('sec-pagos')" class="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl hover:bg-white/5 text-slate-300 hover:text-purple-300 border border-transparent hover:border-white/5 transition-all group">
                     <i data-lucide="credit-card" class="w-4 h-4 text-purple-400 group-hover:scale-110 transition-transform"></i>
@@ -139,7 +142,6 @@
                 </div>
                 
                 <div class="flex flex-wrap items-center gap-2.5 w-full sm:w-auto">
-                    <!-- BOTÓN AGREGAR CONSULTANTE -->
                     <button onclick="document.getElementById('modal-crear-cliente').classList.remove('hidden')" 
                             class="bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition flex items-center gap-2 shadow-lg shadow-purple-600/30">
                         <i data-lucide="user-plus" class="w-4 h-4"></i>
@@ -158,30 +160,6 @@
                     </form>
                 </div>
             </div>
-
-            <!-- Cumpleaños Próximos -->
-            {% if alertas %}
-            <div class="glass-panel bg-amber-500/5 border-amber-500/20 rounded-2xl p-4 space-y-3 shadow-xl">
-                <div class="flex items-center gap-2 text-amber-400 font-bold text-xs uppercase tracking-wider">
-                    <i data-lucide="cake" class="w-4 h-4"></i>
-                    <span>Próximos Cumpleaños (Siguientes 30 Días)</span>
-                </div>
-                <div class="flex flex-wrap gap-2.5">
-                    {% for a in alertas %}
-                        <div class="glass-card border-amber-500/20 text-xs p-3 rounded-xl flex items-center justify-between gap-3 w-full sm:w-auto">
-                            <div>
-                                <p class="font-bold text-white">{{ a.nombre }}</p>
-                                <p class="text-[10px] text-amber-300 font-medium">Cumple el {{ a.fecha_cumple }} (en {{ a.dias_faltantes }} días)</p>
-                            </div>
-                            <a href="https://wa.me/{{ a.telefono.replace('-', '').replace(' ', '') }}?text=Hola%20{{ a.nombre }}!%20✨%20Se%20acerca%20tu%20cumpleaños%20el%20{{ a.fecha_cumple }}.%20¿Te%20gustaría%20agendar%20tu%20Revolución%20Solar?" target="_blank" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-[11px] px-3 py-1.5 rounded-lg transition flex items-center gap-1 shadow-md shadow-amber-500/20 shrink-0">
-                                <i data-lucide="message-circle" class="w-3.5 h-3.5"></i>
-                                <span>Ofrecer Rev. Solar</span>
-                            </a>
-                        </div>
-                    {% endfor %}
-                </div>
-            </div>
-            {% endif %}
 
             <!-- Tabla de Clientes -->
             <div class="glass-panel rounded-2xl shadow-2xl overflow-hidden border border-white/10">
@@ -230,7 +208,7 @@
                             </tr>
                             {% else %}
                             <tr>
-                                <td colspan="6" class="p-8 text-center text-slate-500 italic">No hay consultantes registrados con ese criterio.</td>
+                                <td colspan="6" class="p-8 text-center text-slate-500 italic">No hay consultantes registrados.</td>
                             </tr>
                             {% endfor %}
                         </tbody>
@@ -238,7 +216,6 @@
                 </div>
             </div>
         </section>
-
 
         <!-- 2. SECCIÓN: SOLICITUDES ENTRANTES -->
         <section id="sec-solicitudes" class="hidden space-y-6">
@@ -258,12 +235,10 @@
                             </div>
                             <span class="text-[10px] font-bold bg-purple-500/20 text-purple-300 px-2.5 py-1 rounded-full border border-purple-500/30 shrink-0">{{ s.fecha_solicitud }}</span>
                         </div>
-
                         <div class="text-xs text-slate-400 space-y-0.5">
                             <p>WhatsApp: <span class="text-slate-200">{{ s.telefono or 'No indicado' }}</span></p>
                             <p>Email: <span class="text-slate-200">{{ s.email }}</span></p>
                         </div>
-                        
                         <div class="flex flex-wrap items-center gap-2 pt-3 border-t border-white/10">
                             {% if s.telefono %}
                             <a href="https://wa.me/{{ s.telefono.replace('-', '').replace(' ', '') }}?text=Hola%20{{ s.cliente_nombre }}!%20Recibí%20tu%20solicitud%20para%20{{ s.servicio_nombre }}." target="_blank" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-3.5 py-2 rounded-xl transition flex items-center gap-1.5 shadow-lg shadow-emerald-600/20">
@@ -286,94 +261,25 @@
             {% endif %}
         </section>
 
-
-        <!-- 3. SECCIÓN: AGENDA & CALENDARIO -->
+        <!-- 3. SECCIÓN: AGENDA DINÁMICA CON FULLCALENDAR -->
         <section id="sec-agenda" class="hidden space-y-6">
-            <div>
-                <h2 class="text-xl md:text-2xl font-extrabold text-white tracking-tight">Agenda & Calendario</h2>
-                <p class="text-xs text-slate-400 mt-0.5">Planificación y gestión de sesiones de consultoría</p>
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                    <h2 class="text-xl md:text-2xl font-extrabold text-white tracking-tight">Agenda Astrológica Dinámica</h2>
+                    <p class="text-xs text-slate-400 mt-0.5">Haz clic en cualquier día para agendar o arrastra citas para reprogramarlas</p>
+                </div>
+                <button onclick="abrirModalAgendar();" class="bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition shadow-lg shadow-purple-600/20 flex items-center gap-2">
+                    <i data-lucide="plus" class="w-4 h-4"></i>
+                    <span>+ Nueva Cita</span>
+                </button>
             </div>
 
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <!-- Formulario -->
-                <div class="glass-panel rounded-2xl p-6 shadow-xl space-y-4">
-                    <h3 class="text-sm font-bold text-purple-300 uppercase tracking-wider flex items-center gap-2">
-                        <i data-lucide="plus-circle" class="w-4 h-4"></i>
-                        <span>Agendar Nueva Consulta</span>
-                    </h3>
-
-                    <form action="/admin/agendar_cita" method="POST" class="space-y-3 text-xs">
-                        <div>
-                            <label class="block text-slate-400 mb-1 font-medium">Consultante *</label>
-                            <select name="cliente_id" id="select_cliente" onchange="toggleClienteManual(this.value)" class="w-full glass-input rounded-xl p-2.5 text-white">
-                                <option value="manual" class="bg-slate-900 text-purple-300 font-bold">✨ + Registrar datos manualmente (Sin cuenta)</option>
-                                {% for c in clientes %}
-                                    <option value="{{ c.id }}" class="bg-slate-900">{{ c.nombre }} ({{ c.email }})</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-
-                        <div id="campos_manuales" class="space-y-2 p-3 bg-purple-900/20 border border-purple-500/30 rounded-xl">
-                            <div>
-                                <label class="block text-purple-200 mb-1 font-medium">Nombre Completo *</label>
-                                <input type="text" name="nombre_manual" placeholder="Ej: Laura Pérez" class="w-full glass-input rounded-xl p-2 text-white placeholder-slate-500">
-                            </div>
-                            <div>
-                                <label class="block text-purple-200 mb-1 font-medium">WhatsApp / Teléfono (Opcional)</label>
-                                <input type="text" name="contacto_manual" placeholder="Ej: +58 412 1234567" class="w-full glass-input rounded-xl p-2 text-white placeholder-slate-500">
-                            </div>
-                        </div>
-
-                        <div>
-                            <label class="block text-slate-400 mb-1 font-medium">Servicio *</label>
-                            <select name="servicio" required class="w-full glass-input rounded-xl p-2.5 text-white">
-                                <option value="Revolución Solar" class="bg-slate-900">Revolución Solar</option>
-                                <option value="Carta Natal Evolutiva" class="bg-slate-900">Carta Natal Evolutiva</option>
-                                <option value="Canalización" class="bg-slate-900">Canalización</option>
-                                <option value="Sinastría de Pareja" class="bg-slate-900">Sinastría de Pareja</option>
-                                <option value="Carta Compuesta" class="bg-slate-900">Carta Compuesta</option>
-                                <option value="Tránsitos y Progresiones" class="bg-slate-900">Tránsitos y Progresiones</option>
-                                <option value="Astrocartografía" class="bg-slate-900">Astrocartografía</option>
-                                <option value="Revolución Lunar" class="bg-slate-900">Revolución Lunar</option>
-                            </select>
-                        </div>
-
-                        <div>
-                            <label class="block text-slate-400 mb-1 font-medium">Link de Reunión (Meet/Zoom)</label>
-                            <input type="url" name="link_reunion" placeholder="https://meet.google.com/..." class="w-full glass-input rounded-xl p-2.5 text-white">
-                        </div>
-
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                            <div>
-                                <label class="block text-slate-400 mb-1 font-medium">Fecha *</label>
-                                <input type="date" name="fecha_cita" required class="w-full glass-input rounded-xl p-2 text-white">
-                            </div>
-                            <div>
-                                <label class="block text-slate-400 mb-1 font-medium">Hora *</label>
-                                <input type="time" name="hora_cita" required class="w-full glass-input rounded-xl p-2 text-white">
-                            </div>
-                        </div>
-
-                        <div>
-                            <label class="block text-slate-400 mb-1 font-medium">Notas Privadas</label>
-                            <textarea name="notas" rows="2" placeholder="Detalles o notas sobre la sesión..." class="w-full glass-input rounded-xl p-2.5 text-white placeholder-slate-500"></textarea>
-                        </div>
-
-                        <button type="submit" class="w-full bg-purple-600 hover:bg-purple-500 text-white font-bold py-3 rounded-xl transition shadow-lg shadow-purple-600/30 mt-2">
-                            Guardar Cita en Agenda
-                        </button>
-                    </form>
-                </div>
-
-                <!-- Calendario FullCalendar -->
-                <div class="lg:col-span-2 glass-panel rounded-2xl p-4 md:p-6 shadow-xl overflow-x-auto">
-                    <div id="calendar" class="min-w-[300px]"></div>
-                </div>
+            <div class="glass-panel rounded-3xl p-4 md:p-6 shadow-2xl border border-white/10">
+                <div id="calendar" class="w-full"></div>
             </div>
         </section>
 
-
-        <!-- 4. SECCIÓN: PAGOS / FACTURACIÓN -->
+        <!-- 4. SECCIÓN: PAGOS -->
         <section id="sec-pagos" class="hidden space-y-6">
             <div>
                 <h2 class="text-xl md:text-2xl font-extrabold text-white tracking-tight">Control de Pagos & Facturación</h2>
@@ -381,7 +287,6 @@
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <!-- Formulario -->
                 <div class="glass-panel rounded-2xl p-6 shadow-xl space-y-4">
                     <h3 class="text-sm font-bold text-emerald-400 uppercase tracking-wider flex items-center gap-2">
                         <i data-lucide="dollar-sign" class="w-4 h-4"></i>
@@ -425,7 +330,6 @@
                     </form>
                 </div>
 
-                <!-- Historial -->
                 <div class="lg:col-span-2 glass-panel rounded-2xl p-6 shadow-xl space-y-4">
                     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b border-white/5 pb-3">
                         <h3 class="text-sm font-bold text-white uppercase tracking-wider">Historial de Transacciones</h3>
@@ -470,93 +374,22 @@
             </div>
         </section>
 
-
-        <!-- 5. SECCIÓN: ESTADÍSTICAS & ANALÍTICAS -->
+        <!-- 5. SECCIÓN: ESTADÍSTICAS -->
         <section id="sec-estadisticas" class="hidden space-y-6">
             <div>
-                <h2 class="text-xl md:text-2xl font-extrabold text-white tracking-tight">Métricas & Estadísticas Astrológicas</h2>
-                <p class="text-xs text-slate-400 mt-0.5">Métricas de rendimiento de negocio e insights demográficos</p>
+                <h2 class="text-xl md:text-2xl font-extrabold text-white tracking-tight">Métricas & Estadísticas</h2>
+                <p class="text-xs text-slate-400 mt-0.5">Rendimiento general del sistema</p>
             </div>
 
-            <!-- Cards Resumen -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div class="glass-panel p-5 rounded-2xl shadow-xl space-y-1 relative overflow-hidden">
+                <div class="glass-panel p-5 rounded-2xl shadow-xl space-y-1">
                     <span class="text-[11px] text-slate-400 font-bold uppercase tracking-wider">Total Consultantes</span>
                     <p class="text-3xl font-extrabold text-white mt-1">{{ total_clientes }}</p>
                 </div>
-
-                <div class="glass-panel border-emerald-500/20 p-5 rounded-2xl shadow-xl space-y-1 relative overflow-hidden">
-                    <span class="text-[11px] text-emerald-400 font-bold uppercase tracking-wider">Clientes Activos</span>
-                    <p class="text-3xl font-extrabold text-emerald-400 mt-1">{{ total_activos }}</p>
-                    <p class="text-[10px] text-slate-400">(Cita/Pago últimos 6 meses)</p>
+                <div class="glass-panel border-emerald-500/20 p-5 rounded-2xl shadow-xl space-y-1">
+                    <span class="text-[11px] text-emerald-400 font-bold uppercase tracking-wider">Ingresos Totales</span>
+                    <p class="text-3xl font-extrabold text-emerald-400 mt-1">${{ "%.2f"|format(total_ingresos) }}</p>
                 </div>
-
-                <div class="glass-panel border-rose-500/20 p-5 rounded-2xl shadow-xl space-y-1 relative overflow-hidden">
-                    <span class="text-[11px] text-rose-400 font-bold uppercase tracking-wider">Clientes Inactivos</span>
-                    <p class="text-3xl font-extrabold text-rose-400 mt-1">{{ total_inactivos }}</p>
-                    <p class="text-[10px] text-slate-400">(Sin actividad > 6 meses)</p>
-                </div>
-
-                <div class="glass-panel border-amber-500/20 p-5 rounded-2xl shadow-xl space-y-1 relative overflow-hidden">
-                    <span class="text-[11px] text-amber-400 font-bold uppercase tracking-wider">Ingresos Totales</span>
-                    <p class="text-3xl font-extrabold text-amber-400 mt-1">${{ "%.2f"|format(total_ingresos) }}</p>
-                </div>
-            </div>
-
-            <!-- Listas Top -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                
-                <div class="glass-panel p-6 rounded-2xl shadow-xl space-y-4">
-                    <h3 class="text-xs font-bold text-purple-300 uppercase tracking-wider flex items-center gap-2">
-                        <i data-lucide="sparkles" class="w-4 h-4 text-purple-400"></i>
-                        <span>Servicios Más Demandados</span>
-                    </h3>
-                    <ul class="space-y-2 text-xs">
-                        {% for s in servicios_top %}
-                        <li class="flex justify-between items-center glass-card p-3 rounded-xl">
-                            <span class="text-slate-200 font-semibold">{{ s.servicio_nombre }}</span>
-                            <span class="bg-purple-500/20 text-purple-300 px-2.5 py-1 rounded-full font-bold border border-purple-500/30">{{ s.total }}</span>
-                        </li>
-                        {% else %}
-                        <li class="text-slate-500 italic">Sin registros.</li>
-                        {% endfor %}
-                    </ul>
-                </div>
-
-                <div class="glass-panel p-6 rounded-2xl shadow-xl space-y-4">
-                    <h3 class="text-xs font-bold text-purple-300 uppercase tracking-wider flex items-center gap-2">
-                        <i data-lucide="moon" class="w-4 h-4 text-purple-400"></i>
-                        <span>Signos Solares Frecuentes</span>
-                    </h3>
-                    <ul class="space-y-2 text-xs">
-                        {% for signo, count in top_signos %}
-                        <li class="flex justify-between items-center glass-card p-3 rounded-xl">
-                            <span class="text-slate-200 font-semibold">{{ signo }}</span>
-                            <span class="bg-purple-500/20 text-purple-300 px-2.5 py-1 rounded-full font-bold border border-purple-500/30">{{ count }}</span>
-                        </li>
-                        {% else %}
-                        <li class="text-slate-500 italic">Sin registros.</li>
-                        {% endfor %}
-                    </ul>
-                </div>
-
-                <div class="glass-panel p-6 rounded-2xl shadow-xl space-y-4">
-                    <h3 class="text-xs font-bold text-purple-300 uppercase tracking-wider flex items-center gap-2">
-                        <i data-lucide="globe" class="w-4 h-4 text-purple-400"></i>
-                        <span>Ciudades / Países Top</span>
-                    </h3>
-                    <ul class="space-y-2 text-xs">
-                        {% for lugar, count in top_lugares %}
-                        <li class="flex justify-between items-center glass-card p-3 rounded-xl">
-                            <span class="text-slate-200 font-semibold">{{ lugar }}</span>
-                            <span class="bg-purple-900/50 text-purple-300 px-2.5 py-1 rounded-full font-bold border border-purple-500/30">{{ count }}</span>
-                        </li>
-                        {% else %}
-                        <li class="text-slate-500 italic">Sin registros.</li>
-                        {% endfor %}
-                    </ul>
-                </div>
-
             </div>
         </section>
 
@@ -621,7 +454,7 @@
                     </div>
                     <div>
                         <label class="block font-bold text-slate-300 mb-1">Notas / Motivo</label>
-                        <input type="text" name="motivo_consulta" placeholder="Detalles de la consulta..."
+                        <input type="text" name="motivo_consulta" placeholder="Detalles..."
                                class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-purple-500">
                     </div>
                 </div>
@@ -639,21 +472,125 @@
         </div>
     </div>
 
+    <!-- MODAL: AGENDAR CITA (DINÁMICO) -->
+    <div id="modal-agendar" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+        <div class="glass-panel max-w-lg w-full p-6 rounded-3xl space-y-4 border border-white/10 shadow-2xl relative">
+            <div class="flex justify-between items-center border-b border-white/10 pb-3">
+                <h3 class="text-sm font-bold text-purple-300 flex items-center gap-2">
+                    <i data-lucide="calendar" class="w-4 h-4"></i>
+                    <span>Agendar Nueva Consulta</span>
+                </h3>
+                <button onclick="document.getElementById('modal-agendar').classList.add('hidden')" class="text-slate-400 hover:text-white">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <form action="/admin/agendar_cita" method="POST" class="space-y-3 text-xs">
+                <div>
+                    <label class="block font-bold text-slate-300 mb-1">Seleccionar Consultante</label>
+                    <select name="cliente_id" id="select-cliente" onchange="toggleClienteManual(this.value)" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-purple-500">
+                        <option value="manual">-- Cliente Manual / Externo --</option>
+                        {% for c in clientes %}
+                            <option value="{{ c.id }}">{{ c.nombre }} ({{ c.email }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div id="campos_manuales" class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-bold text-slate-300 mb-1">Nombre Manual</label>
+                        <input type="text" name="nombre_manual" placeholder="Nombre completo" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white">
+                    </div>
+                    <div>
+                        <label class="block font-bold text-slate-300 mb-1">Contacto Manual (Opcional)</label>
+                        <input type="text" name="contacto_manual" placeholder="Telf o correo" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-bold text-slate-300 mb-1">Servicio *</label>
+                        <select name="servicio" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white">
+                            <option value="Carta Natal Evolutiva">Carta Natal Evolutiva</option>
+                            <option value="Revolución Solar">Revolución Solar</option>
+                            <option value="Tarot Evolutivo">Tarot Evolutivo</option>
+                            <option value="Limpieza de Chakras">Limpieza de Chakras</option>
+                            <option value="Astrología del Dinero">Astrología del Dinero</option>
+                            <option value="Lectura Canalizada">Lectura Canalizada</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block font-bold text-slate-300 mb-1">Link de Reunión (Meet/Zoom)</label>
+                        <input type="url" name="link_reunion" placeholder="https://meet.google.com/..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-bold text-slate-300 mb-1">Fecha *</label>
+                        <input type="date" name="fecha_cita" id="input_fecha_cita" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white">
+                    </div>
+                    <div>
+                        <label class="block font-bold text-slate-300 mb-1">Hora *</label>
+                        <input type="time" name="hora_cita" id="input_hora_cita" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block font-bold text-slate-300 mb-1">Notas Privadas</label>
+                    <input type="text" name="notas" placeholder="Detalles de la sesión" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white">
+                </div>
+
+                <div class="pt-2 flex justify-end gap-2">
+                    <button type="button" onclick="document.getElementById('modal-agendar').classList.add('hidden')" class="bg-slate-800 text-slate-300 px-4 py-2.5 rounded-xl font-semibold">Cancelar</button>
+                    <button type="submit" class="bg-purple-600 hover:bg-purple-500 text-white font-bold px-4 py-2.5 rounded-xl transition shadow-lg shadow-purple-600/30">Guardar Cita</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: VER / ELIMINAR EVENTO DEL CALENDARIO -->
+    <div id="modal-detalle-evento" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+        <div class="glass-panel max-w-sm w-full p-6 rounded-3xl space-y-4 border border-white/10 shadow-2xl relative">
+            <div class="flex justify-between items-center border-b border-white/10 pb-3">
+                <h3 id="detalle-titulo" class="text-sm font-bold text-purple-300">Detalles de la Cita</h3>
+                <button onclick="document.getElementById('modal-detalle-evento').classList.add('hidden')" class="text-slate-400 hover:text-white">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            
+            <div class="space-y-2 text-xs text-slate-300">
+                <p><strong>Fecha y Hora:</strong> <span id="detalle-fecha" class="text-purple-300 font-semibold"></span></p>
+                <div id="detalle-link-container" class="hidden">
+                    <a id="detalle-link" href="#" target="_blank" class="inline-flex items-center gap-1.5 bg-purple-600 hover:bg-purple-500 text-white px-3 py-1.5 rounded-xl font-bold transition mt-1">
+                        <i data-lucide="video" class="w-3.5 h-3.5"></i>
+                        <span>Unirse a la llamada ↗</span>
+                    </a>
+                </div>
+            </div>
+
+            <div class="pt-3 border-t border-white/10 flex justify-between gap-2">
+                <button id="btn-eliminar-cita" class="bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold px-4 py-2 rounded-xl transition w-full">
+                    Eliminar Cita
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- SCRIPTS -->
     <script>
         lucide.createIcons();
 
         function toggleMenu() {
-            const sidebar = document.getElementById('sidebar');
-            sidebar.classList.toggle('hidden');
+            document.getElementById('sidebar').classList.toggle('hidden');
         }
 
         function toggleClienteManual(valor) {
-            const camposManuales = document.getElementById('campos_manuales');
+            const campos = document.getElementById('campos_manuales');
             if (valor === 'manual') {
-                camposManuales.style.display = 'block';
+                campos.classList.remove('hidden');
             } else {
-                camposManuales.style.display = 'none';
+                campos.classList.add('hidden');
             }
         }
 
@@ -670,6 +607,12 @@
             }
         }
 
+        function abrirModalAgendar(fechaStr = '', horaStr = '') {
+            if (fechaStr) document.getElementById('input_fecha_cita').value = fechaStr;
+            if (horaStr) document.getElementById('input_hora_cita').value = horaStr;
+            document.getElementById('modal-agendar').classList.remove('hidden');
+        }
+
         let calendar = null;
         function renderizarCalendario() {
             if (calendar) return;
@@ -679,19 +622,69 @@
             calendar = new FullCalendar.Calendar(calendarEl, {
                 initialView: window.innerWidth < 768 ? 'timeGridWeek' : 'dayGridMonth',
                 locale: 'es',
+                editable: true, // Permite Drag and Drop
+                selectable: true, // Permite hacer clic en días/rangos
                 headerToolbar: {
                     left: 'prev,next today',
                     center: 'title',
-                    right: window.innerWidth < 768 ? '' : 'dayGridMonth,timeGridWeek'
+                    right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
+                },
+                buttonText: {
+                    today: 'Hoy',
+                    month: 'Mes',
+                    week: 'Semana',
+                    day: 'Día',
+                    list: 'Lista'
                 },
                 events: citasEventos,
+
+                // 1. Clic en un día u hora vacía -> Abrir Agendado Rápido
+                select: function(info) {
+                    const fecha = info.startStr.split('T')[0];
+                    const hora = info.startStr.includes('T') ? info.startStr.split('T')[1].substring(0, 5) : '09:00';
+                    abrirModalAgendar(fecha, hora);
+                },
+
+                // 2. Drag & Drop: Mover cita directamente a otro día
+                eventDrop: function(info) {
+                    actualizarFechaCita(info.event.id, info.event.startStr);
+                },
+
+                // 3. Redimensionar duración de la cita
+                eventResize: function(info) {
+                    actualizarFechaCita(info.event.id, info.event.startStr);
+                },
+
+                // 4. Clic en una Cita -> Ver Modal de Detalle
                 eventClick: function(info) {
-                    if (confirm(`¿Deseas eliminar la cita "${info.event.title}"?`)) {
-                        window.location.href = `/admin/eliminar_cita/${info.event.id}`;
-                    }
+                    document.getElementById('detalle-titulo').innerText = info.event.title;
+                    document.getElementById('detalle-fecha').innerText = info.event.start ? info.event.start.toLocaleString() : 'Fecha no especificada';
+                    
+                    document.getElementById('btn-eliminar-cita').onclick = function() {
+                        if (confirm(`¿Confirmas eliminar la cita "${info.event.title}"?`)) {
+                            window.location.href = `/admin/eliminar_cita/${info.event.id}`;
+                        }
+                    };
+
+                    document.getElementById('modal-detalle-evento').classList.remove('hidden');
                 }
             });
             calendar.render();
+        }
+
+        // Función AJAX para actualizar la fecha en BD al arrastrar un evento
+        function actualizarFechaCita(id, startStr) {
+            fetch('/admin/actualizar_fecha_cita', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: id, start: startStr })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(data.status !== 'ok') {
+                    alert('Error al reprogramar la cita.');
+                }
+            });
         }
     </script>
 </body>
