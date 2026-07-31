@@ -86,7 +86,12 @@ def index():
 def registro_form():
     if request.method == 'POST':
         nombre = request.form.get('nombre', '').strip()
-        telefono = request.form.get('telefono', '').strip()
+        codigo_pais = request.form.get('codigo_pais', '+58')
+        num_telefono = request.form.get('telefono', '').strip()
+        
+        # Concatena el código con el número si el consultante ingresó algo
+        telefono = f"{codigo_pais} {num_telefono}" if num_telefono else ""
+        
         email = request.form.get('email', '').strip().lower()
         fecha_nac = request.form.get('fecha_nacimiento')
         hora_nac = request.form.get('hora_nacimiento')
@@ -95,7 +100,6 @@ def registro_form():
         referido_por = request.form.get('referido_por', '').strip()
         servicios_seleccionados = request.form.getlist('servicios')
 
-        # Teléfono ya NO es obligatorio aquí
         if not nombre or not email or not fecha_nac:
             flash("Por favor completa los campos obligatorios.", "error")
             return render_template('formulario.html')
@@ -370,7 +374,10 @@ def admin_dashboard():
 @admin_required
 def crear_cliente():
     nombre = request.form.get('nombre', '').strip()
-    telefono = request.form.get('telefono', '').strip()
+    codigo_pais = request.form.get('codigo_pais', '+58')
+    num_telefono = request.form.get('telefono', '').strip()
+    telefono = f"{codigo_pais} {num_telefono}" if num_telefono else ""
+
     email = request.form.get('email', '').strip().lower()
     fecha_nac = request.form.get('fecha_nacimiento')
     hora_nac = request.form.get('hora_nacimiento', '').strip()
@@ -378,7 +385,6 @@ def crear_cliente():
     motivo = request.form.get('motivo_consulta', '').strip()
     referido_por = request.form.get('referido_por', '').strip()
 
-    # Teléfono ya NO es obligatorio en el panel
     if not nombre or not email or not fecha_nac:
         flash("Completa los campos obligatorios (Nombre, Email y Fecha de Nacimiento).", "error")
         return redirect(url_for('admin_dashboard'))
@@ -459,12 +465,13 @@ def eliminar_cita(cita_id):
     flash("Cita eliminada correctamente de la agenda.", "exito")
     return redirect(url_for('admin_dashboard'))
 
+
 @app.route('/admin/actualizar_fecha_cita', methods=['POST'])
 @admin_required
 def actualizar_fecha_cita():
     data = request.get_json() or {}
     cita_id = data.get('id')
-    nueva_fecha_hora = data.get('start') # Formato 'YYYY-MM-DDTHH:MM:SS'
+    nueva_fecha_hora = data.get('start')
 
     if cita_id and nueva_fecha_hora:
         parts = nueva_fecha_hora.split('T')
@@ -486,6 +493,7 @@ def actualizar_fecha_cita():
         return {"status": "ok"}
 
     return {"status": "error"}, 400
+
 
 @app.route('/admin/registrar_pago', methods=['POST'])
 @admin_required
