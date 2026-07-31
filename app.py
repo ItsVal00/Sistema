@@ -95,7 +95,8 @@ def registro_form():
         referido_por = request.form.get('referido_por', '').strip()
         servicios_seleccionados = request.form.getlist('servicios')
 
-        if not nombre or not telefono or not email or not fecha_nac:
+        # Teléfono ya NO es obligatorio aquí
+        if not nombre or not email or not fecha_nac:
             flash("Por favor completa los campos obligatorios.", "error")
             return render_template('formulario.html')
 
@@ -377,8 +378,9 @@ def crear_cliente():
     motivo = request.form.get('motivo_consulta', '').strip()
     referido_por = request.form.get('referido_por', '').strip()
 
-    if not nombre or not telefono or not email or not fecha_nac:
-        flash("Completa los campos obligatorios (Nombre, Teléfono, Email y Fecha de Nacimiento).", "error")
+    # Teléfono ya NO es obligatorio en el panel
+    if not nombre or not email or not fecha_nac:
+        flash("Completa los campos obligatorios (Nombre, Email y Fecha de Nacimiento).", "error")
         return redirect(url_for('admin_dashboard'))
 
     token_acceso = secrets.token_urlsafe(32)

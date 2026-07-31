@@ -54,7 +54,7 @@
               {% endif %}
             {% endwith %}
 
-            <!-- FORMULARIO SIN AUTOCOMPLETADO NI CAMPO DE CONTRASEÑA -->
+            <!-- FORMULARIO -->
             <form action="/registro-form" method="POST" autocomplete="off" class="space-y-4">
                 
                 <!-- Nombre Completo -->
@@ -64,11 +64,11 @@
                            class="w-full bg-slate-900/80 border border-slate-700/60 rounded-xl px-4 py-3 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 transition">
                 </div>
 
-                <!-- Contacto: WhatsApp y Correo -->
+                <!-- Contacto: WhatsApp (Opcional) y Correo (*) -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-xs font-bold text-slate-300 mb-1">WhatsApp / Teléfono *</label>
-                        <input type="text" name="telefono" required placeholder="+58 414 1234567" autocomplete="off"
+                        <label class="block text-xs font-bold text-slate-300 mb-1">WhatsApp / Teléfono (Opcional)</label>
+                        <input type="text" name="telefono" placeholder="+58 414 1234567" autocomplete="off"
                                class="w-full bg-slate-900/80 border border-slate-700/60 rounded-xl px-4 py-3 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 transition">
                     </div>
                     <div>
