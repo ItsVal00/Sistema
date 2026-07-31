@@ -55,8 +55,7 @@
             {% endwith %}
 
             <!-- FORMULARIO -->
-            <form action="/registro-form" method="POST" autocomplete="off" onsubmit="prepararTelefonoSubmit('codigo_pais_reg', 'numero_telefono_reg', 'telefono_hidden_reg')" class="space-y-4">
-                <input type="hidden" name="telefono" id="telefono_hidden_reg">
+            <form action="/registro-form" method="POST" autocomplete="off" class="space-y-4">
                 
                 <!-- Nombre Completo -->
                 <div>
@@ -65,39 +64,30 @@
                            class="w-full bg-slate-900/80 border border-slate-700/60 rounded-xl px-4 py-3 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 transition">
                 </div>
 
-                <!-- Contacto: WhatsApp / Teléfono con Código de País + Email -->
+                <!-- TELÉFONO Y CORREO -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-xs font-bold text-slate-300 mb-1">WhatsApp / Teléfono (Opcional)</label>
                         <div class="flex gap-2">
-                            <select id="codigo_pais_reg" class="bg-slate-900/80 border border-slate-700/60 rounded-xl px-2.5 py-3 text-xs text-white focus:outline-none focus:border-purple-500 transition shrink-0">
-                                <option value="+58">🇻🇪 +58 (VE)</option>
-                                <option value="+34">🇪🇸 +34 (ES)</option>
-                                <option value="+1">🇺🇸 +1 (US/CA)</option>
-                                <option value="+52">🇲🇽 +52 (MX)</option>
-                                <option value="+57">🇨🇴 +57 (CO)</option>
-                                <option value="+54">🇦🇷 +54 (AR)</option>
-                                <option value="+56">🇨🇱 +56 (CL)</option>
-                                <option value="+51">🇵🇪 +51 (PE)</option>
-                                <option value="+593">🇪🇨 +593 (EC)</option>
-                                <option value="+598">🇺🇾 +598 (UY)</option>
-                                <option value="+507">🇵🇦 +507 (PA)</option>
-                                <option value="+506">🇨🇷 +506 (CR)</option>
-                                <option value="+502">🇬🇹 +502 (GT)</option>
-                                <option value="+503">🇸🇻 +503 (SV)</option>
-                                <option value="+504">🇭🇳 +504 (HN)</option>
-                                <option value="+505">🇳🇮 +505 (NI)</option>
-                                <option value="+595">🇵🇾 +595 (PY)</option>
-                                <option value="+591">🇧🇴 +591 (BO)</option>
-                                <option value="+1">🇩🇴 +1 (DO)</option>
-                                <option value="+1">🇵🇷 +1 (PR)</option>
-                                <option value="+44">🇬🇧 +44 (UK)</option>
-                                <option value="+49">🇩🇪 +49 (DE)</option>
-                                <option value="+39">🇮🇹 +39 (IT)</option>
-                                <option value="+33">🇫🇷 +33 (FR)</option>
-                                <option value="+351">🇵🇹 +351 (PT)</option>
+                            <select name="codigo_pais" class="bg-slate-900/80 border border-slate-700/60 rounded-xl px-3 py-3 text-xs text-white focus:outline-none focus:border-purple-500 transition shrink-0">
+                                <option value="+58">+58 (VE)</option>
+                                <option value="+34">+34 (ES)</option>
+                                <option value="+1">+1 (US/CA)</option>
+                                <option value="+52">+52 (MX)</option>
+                                <option value="+57">+57 (CO)</option>
+                                <option value="+54">+54 (AR)</option>
+                                <option value="+56">+56 (CL)</option>
+                                <option value="+51">+51 (PE)</option>
+                                <option value="+593">+593 (EC)</option>
+                                <option value="+598">+598 (UY)</option>
+                                <option value="+507">+507 (PA)</option>
+                                <option value="+506">+506 (CR)</option>
+                                <option value="+44">+44 (UK)</option>
+                                <option value="+49">+49 (DE)</option>
+                                <option value="+39">+39 (IT)</option>
+                                <option value="+33">+33 (FR)</option>
                             </select>
-                            <input type="text" id="numero_telefono_reg" placeholder="414 1234567" autocomplete="off"
+                            <input type="text" name="telefono" placeholder="4141234567" autocomplete="off"
                                    class="w-full bg-slate-900/80 border border-slate-700/60 rounded-xl px-4 py-3 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 transition">
                         </div>
                     </div>
@@ -162,14 +152,6 @@
                             <input type="checkbox" name="servicios" value="Tránsitos y Progresiones" class="accent-purple-600 rounded">
                             <span>Tránsitos y Progresiones</span>
                         </label>
-                        <label class="flex items-center gap-2 bg-slate-900/50 p-3 rounded-xl border border-white/5 cursor-pointer hover:border-purple-500/30 transition">
-                            <input type="checkbox" name="servicios" value="Astrocartografía" class="accent-purple-600 rounded">
-                            <span>Astrocartografía</span>
-                        </label>
-                        <label class="flex items-center gap-2 bg-slate-900/50 p-3 rounded-xl border border-white/5 cursor-pointer hover:border-purple-500/30 transition">
-                            <input type="checkbox" name="servicios" value="Revolución Lunar" class="accent-purple-600 rounded">
-                            <span>Revolución Lunar</span>
-                        </label>
                     </div>
                 </div>
 
@@ -191,21 +173,6 @@
 
     </div>
 
-    <script>
-        lucide.createIcons();
-
-        function prepararTelefonoSubmit(selectId, inputNumId, hiddenId) {
-            const selectCod = document.getElementById(selectId);
-            const inputNum = document.getElementById(inputNumId);
-            const hiddenInput = document.getElementById(hiddenId);
-            
-            const num = inputNum.value.trim();
-            if (num) {
-                hiddenInput.value = selectCod.value + ' ' + num;
-            } else {
-                hiddenInput.value = '';
-            }
-        }
-    </script>
+    <script>lucide.createIcons();</script>
 </body>
 </html>

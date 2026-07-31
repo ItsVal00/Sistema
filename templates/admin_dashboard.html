@@ -395,7 +395,7 @@
 
     </main>
 
-    <!-- MODAL: CREAR NUEVO CONSULTANTE -->
+    <!-- MODAL: CREAR NUEVO CONSULTANTE DESDE ADMIN -->
     <div id="modal-crear-cliente" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
         <div class="glass-panel max-w-lg w-full p-6 rounded-3xl space-y-4 border border-white/10 shadow-2xl relative">
             <div class="flex justify-between items-center border-b border-white/10 pb-3">
@@ -415,11 +415,27 @@
                            class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-purple-500">
                 </div>
 
-                <div class="grid grid-cols-2 gap-3">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <div>
                         <label class="block font-bold text-slate-300 mb-1">WhatsApp / Teléfono (Opcional)</label>
-                        <input type="text" name="telefono" placeholder="+58 412..."
-                               class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-purple-500">
+                        <div class="flex gap-1.5">
+                            <select name="codigo_pais" class="bg-slate-900 border border-slate-700 rounded-xl px-2 py-2 text-white focus:outline-none focus:border-purple-500 shrink-0 text-xs">
+                                <option value="+58">+58 (VE)</option>
+                                <option value="+34">+34 (ES)</option>
+                                <option value="+1">+1 (US/CA)</option>
+                                <option value="+52">+52 (MX)</option>
+                                <option value="+57">+57 (CO)</option>
+                                <option value="+54">+54 (AR)</option>
+                                <option value="+56">+56 (CL)</option>
+                                <option value="+51">+51 (PE)</option>
+                                <option value="+593">+593 (EC)</option>
+                                <option value="+598">+598 (UY)</option>
+                                <option value="+507">+507 (PA)</option>
+                                <option value="+506">+506 (CR)</option>
+                            </select>
+                            <input type="text" name="telefono" placeholder="4121234567"
+                                   class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-purple-500">
+                        </div>
                     </div>
                     <div>
                         <label class="block font-bold text-slate-300 mb-1">Correo Electrónico *</label>
@@ -622,8 +638,8 @@
             calendar = new FullCalendar.Calendar(calendarEl, {
                 initialView: window.innerWidth < 768 ? 'timeGridWeek' : 'dayGridMonth',
                 locale: 'es',
-                editable: true, // Permite Drag and Drop
-                selectable: true, // Permite hacer clic en días/rangos
+                editable: true,
+                selectable: true,
                 headerToolbar: {
                     left: 'prev,next today',
                     center: 'title',
@@ -638,24 +654,20 @@
                 },
                 events: citasEventos,
 
-                // 1. Clic en un día u hora vacía -> Abrir Agendado Rápido
                 select: function(info) {
                     const fecha = info.startStr.split('T')[0];
                     const hora = info.startStr.includes('T') ? info.startStr.split('T')[1].substring(0, 5) : '09:00';
                     abrirModalAgendar(fecha, hora);
                 },
 
-                // 2. Drag & Drop: Mover cita directamente a otro día
                 eventDrop: function(info) {
                     actualizarFechaCita(info.event.id, info.event.startStr);
                 },
 
-                // 3. Redimensionar duración de la cita
                 eventResize: function(info) {
                     actualizarFechaCita(info.event.id, info.event.startStr);
                 },
 
-                // 4. Clic en una Cita -> Ver Modal de Detalle
                 eventClick: function(info) {
                     document.getElementById('detalle-titulo').innerText = info.event.title;
                     document.getElementById('detalle-fecha').innerText = info.event.start ? info.event.start.toLocaleString() : 'Fecha no especificada';
@@ -672,7 +684,6 @@
             calendar.render();
         }
 
-        // Función AJAX para actualizar la fecha en BD al arrastrar un evento
         function actualizarFechaCita(id, startStr) {
             fetch('/admin/actualizar_fecha_cita', {
                 method: 'POST',
