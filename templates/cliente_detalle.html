@@ -1,254 +1,226 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ficha de {{ cliente.nombre }} - Maru González</title>
+    <title>Ficha de {{ cliente.nombre }} — Admin</title>
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.65);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .glass-card {
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+    </style>
 </head>
-<body class="bg-slate-900 text-slate-100 min-h-screen p-4 md:p-6">
-    <div class="max-w-4xl mx-auto space-y-6">
-        
-        <!-- Enlace de retorno -->
-        <a href="/admin" class="text-purple-400 hover:text-purple-300 text-sm flex items-center gap-1 transition">
-            ← Volver al Panel Principal
+<body class="bg-[#0b0f19] text-slate-100 min-h-screen p-4 md:p-8 antialiased selection:bg-purple-500 selection:text-white relative overflow-x-hidden">
+
+    <div class="max-w-5xl mx-auto space-y-6 relative z-10">
+
+        <!-- Botón Volver -->
+        <a href="/admin" class="inline-flex items-center gap-2 text-xs font-semibold text-purple-300 hover:text-purple-200 transition">
+            <i data-lucide="arrow-left" class="w-4 h-4"></i>
+            <span>Volver al Panel Principal</span>
         </a>
 
-        <!-- Mensajes Flasheados -->
+        <!-- Mensajes Flash -->
         {% with messages = get_flashed_messages(with_categories=true) %}
           {% if messages %}
             {% for category, message in messages %}
-              <div class="p-4 rounded-xl text-sm border shadow-lg {% if category == 'error' %}bg-red-900/40 border-red-500/50 text-red-300{% else %}bg-green-900/40 border-green-500/50 text-green-300{% endif %}">
-                {{ message }}
+              <div class="p-4 rounded-2xl text-xs font-semibold border flex items-center gap-3 shadow-xl {% if category == 'error' %}bg-rose-500/10 border-rose-500/30 text-rose-300{% else %}bg-emerald-500/10 border-emerald-500/30 text-emerald-300{% endif %}">
+                <i data-lucide="info" class="w-4 h-4 shrink-0"></i>
+                <span>{{ message }}</span>
               </div>
             {% endfor %}
           {% endif %}
         {% endwith %}
 
-        <!-- Información del Cliente -->
-        <div class="bg-slate-800 border border-slate-700 rounded-xl p-6 shadow-xl space-y-4">
-            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-2">
-                <h1 class="text-2xl font-bold text-purple-300">{{ cliente.nombre }}</h1>
-                <a href="https://wa.me/{{ cliente.telefono.replace('-', '').replace(' ', '') }}?text=Hola%20{{ cliente.nombre }}!%20Un%20gusto%20saludarte." target="_blank" class="bg-green-600 hover:bg-green-500 text-white font-bold text-xs px-3 py-2 rounded-lg transition flex items-center gap-1">
-                    💬 WhatsApp Directo
+        <!-- Tarjeta de Datos Personales -->
+        <div class="glass-panel p-6 md:p-8 rounded-3xl shadow-2xl space-y-6 border border-white/10">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                    <h1 class="text-2xl font-extrabold text-white uppercase tracking-wide">{{ cliente.nombre }}</h1>
+                    <p class="text-xs text-slate-400 mt-1">Registrado el: {{ cliente.fecha_registro }}</p>
+                </div>
+                <a href="https://wa.me/{{ cliente.telefono|replace(' ', '')|replace('-', '')|replace('+', '') }}" target="_blank"
+                   class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs px-4 py-2.5 rounded-xl transition shadow-lg shadow-emerald-600/20 flex items-center gap-2">
+                    <i data-lucide="message-circle" class="w-4 h-4"></i>
+                    <span>WhatsApp Directo</span>
                 </a>
             </div>
-        <!-- Enlace Directo al Portal del Consultante -->
-        <div class="mt-4 p-4 rounded-2xl bg-purple-500/10 border border-purple-500/30 flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
-            <div>
-                <p class="text-xs font-bold text-purple-300 uppercase tracking-wider flex items-center gap-1.5">
-                    <i data-lucide="link" class="w-4 h-4"></i> Link Único de Acceso al Portal
-                </p>
-                <p class="text-xs text-slate-300 font-mono mt-1 break-all select-all">
-                    https://marugonzalez.vercel.app/mi-cuenta/{{ cliente.token_acceso }}
-                </p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs text-slate-300 font-medium">
+                <div class="space-y-2 glass-card p-4 rounded-2xl border border-white/5">
+                    <p><strong class="text-slate-400">Teléfono / WhatsApp:</strong> {{ cliente.telefono }}</p>
+                    <p><strong class="text-slate-400">Correo Electrónico:</strong> {{ cliente.email }}</p>
+                    <p><strong class="text-slate-400">Referido Por:</strong> {{ cliente.referido_por or 'Ninguno' }}</p>
+                </div>
+                <div class="space-y-2 glass-card p-4 rounded-2xl border border-white/5">
+                    <p><strong class="text-slate-400">Fecha de Nacimiento:</strong> {{ cliente.fecha_nacimiento }}</p>
+                    <p><strong class="text-slate-400">Hora Exacta:</strong> {{ cliente.hora_nacimiento or 'No especificada' }}</p>
+                    <p><strong class="text-slate-400">Lugar de Nacimiento:</strong> {{ cliente.lugar_nacimiento or 'No especificado' }}</p>
+                </div>
             </div>
-            
-            <div class="flex items-center gap-2 shrink-0 w-full md:w-auto">
-                <button onclick="navigator.clipboard.writeText('https://marugonzalez.vercel.app/mi-cuenta/{{ cliente.token_acceso }}'); alert('¡Link copiado al portapapeles!');" 
-                        class="bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold px-3 py-2 rounded-xl transition flex items-center gap-1.5 justify-center w-full md:w-auto">
-                    <i data-lucide="copy" class="w-3.5 h-3.5"></i> Copiar Link
-                </button>
+
+            <!-- ENLACE ÚNICO DE ACCESO AL PORTAL -->
+            <div class="p-4 rounded-2xl bg-purple-500/10 border border-purple-500/30 flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
+                <div>
+                    <p class="text-xs font-bold text-purple-300 uppercase tracking-wider flex items-center gap-1.5">
+                        <i data-lucide="link" class="w-4 h-4"></i> Link Único de Acceso al Portal
+                    </p>
+                    <p class="text-xs text-slate-300 font-mono mt-1 break-all select-all">
+                        https://marugonzalez.vercel.app/mi-cuenta/{{ cliente.token_acceso }}
+                    </p>
+                </div>
                 
-                <a href="https://wa.me/{{ cliente.telefono|replace(' ', '')|replace('-', '') }}?text=¡Hola%20{{ cliente.nombre.split(' ')[0] }}!%20Aquí%20tienes%20el%20enlace%20directo%20a%20tu%20portal%20astrológico:%20https://marugonzalez.vercel.app/mi-cuenta/{{ cliente.token_acceso }}" 
-                target="_blank" 
-                class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-3 py-2 rounded-xl transition flex items-center gap-1.5 justify-center w-full md:w-auto">
-                    <i data-lucide="message-circle" class="w-3.5 h-3.5"></i> Enviar por WhatsApp
-                </a>
-            </div>
-        </div>
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm bg-slate-700/30 p-4 rounded-lg border border-slate-700">
-                <div><span class="text-slate-400 font-medium">Teléfono / WhatsApp:</span> <span class="text-slate-200">{{ cliente.telefono }}</span></div>
-                <div><span class="text-slate-400 font-medium">Email:</span> <span class="text-slate-200">{{ cliente.email }}</span></div>
-                <div><span class="text-slate-400 font-medium">Fecha de Nacimiento:</span> <span class="text-slate-200">{{ cliente.fecha_nacimiento }}</span></div>
-                <div><span class="text-slate-400 font-medium">Hora Exacta:</span> <span class="text-slate-200">{{ cliente.hora_nacimiento or 'No especificada' }}</span></div>
-                <div class="col-span-1 md:col-span-2"><span class="text-slate-400 font-medium">Lugar de Nacimiento:</span> <span class="text-slate-200">{{ cliente.lugar_nacimiento or 'No especificado' }}</span></div>
+                <div class="flex items-center gap-2 shrink-0 w-full md:w-auto">
+                    <button onclick="navigator.clipboard.writeText('https://marugonzalez.vercel.app/mi-cuenta/{{ cliente.token_acceso }}'); alert('¡Link copiado al portapapeles!');" 
+                            class="bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold px-3 py-2 rounded-xl transition flex items-center gap-1.5 justify-center w-full md:w-auto">
+                        <i data-lucide="copy" class="w-3.5 h-3.5"></i> Copiar Link
+                    </button>
+                    
+                    <a href="https://wa.me/{{ cliente.telefono|replace(' ', '')|replace('-', '')|replace('+', '') }}?text=¡Hola%20{{ cliente.nombre.split(' ')[0] }}!%20Aquí%20tienes%20el%20enlace%20directo%20a%20tu%20portal%20astrológico:%20https://marugonzalez.vercel.app/mi-cuenta/{{ cliente.token_acceso }}" 
+                       target="_blank" 
+                       class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-3 py-2 rounded-xl transition flex items-center gap-1.5 justify-center w-full md:w-auto">
+                        <i data-lucide="send" class="w-3.5 h-3.5"></i> Enviar por WhatsApp
+                    </a>
+                </div>
             </div>
 
-            {% if cliente.motivo_consulta %}
-            <div class="bg-slate-700/20 p-4 rounded-lg border border-slate-700 text-sm">
-                <p class="font-semibold text-purple-300 mb-1">Motivo / Notas del Consultante:</p>
-                <p class="text-slate-300 italic">"{{ cliente.motivo_consulta }}"</p>
-            </div>
-            {% endif %}
-
-            <!-- Servicios Solicitados Inicialmente -->
-            <div>
-                <h3 class="text-xs font-semibold text-slate-400 mb-2 uppercase tracking-wider">Servicios Solicitados al Registrarse</h3>
+            <!-- Servicios Interesados -->
+            {% if servicios %}
+            <div class="space-y-2">
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Servicios de Interés:</p>
                 <div class="flex flex-wrap gap-2">
-                    {% for s in servicios %}
-                        <span class="bg-purple-900/40 border border-purple-500/30 text-purple-300 px-3 py-1 rounded-full text-xs font-medium">
-                            {{ s }}
-                        </span>
-                    {% else %}
-                        <span class="text-xs text-slate-500 italic">No seleccionó servicios específicos.</span>
+                    {% for serv in servicios %}
+                    <span class="bg-purple-500/20 text-purple-300 text-xs font-semibold px-3 py-1 rounded-full border border-purple-500/30">
+                        {{ serv }}
+                    </span>
                     {% endfor %}
                 </div>
             </div>
+            {% endif %}
         </div>
 
-        <!-- Documentos Astrológicos (PDFs / Cartas) -->
-        <div class="bg-slate-800 border border-slate-700 rounded-xl p-6 shadow-xl space-y-6">
-            <h2 class="text-xl font-bold text-purple-300">Documentos Astrológicos (PDFs / Cartas)</h2>
-            
-            <form action="/admin/subir_documento/{{ cliente.id }}" method="POST" enctype="multipart/form-data" class="bg-slate-700/40 p-4 rounded-lg border border-slate-700 flex flex-col md:flex-row gap-4 items-end">
-                <div class="w-full md:w-1/3">
-                    <label class="block text-xs text-slate-400 mb-1">Tipo de Documento</label>
-                    <select name="tipo_doc" class="w-full bg-slate-800 border border-slate-600 rounded-lg p-2.5 text-sm text-white focus:outline-none focus:border-purple-400">
-                        <option value="Carta Natal">Carta Natal</option>
-                        <option value="Revolución Solar">Revolución Solar</option>
-                        <option value="Informe de Lectura">Informe de Lectura</option>
-                        <option value="Otro">Otro Documento</option>
-                    </select>
+        <!-- Módulo: Documentos / PDFs -->
+        <div class="glass-panel p-6 md:p-8 rounded-3xl shadow-2xl space-y-6 border border-white/10">
+            <div class="flex items-center justify-between">
+                <h2 class="text-lg font-bold text-white flex items-center gap-2">
+                    <i data-lucide="file-text" class="w-5 h-5 text-purple-400"></i>
+                    <span>Documentos Astrológicos (PDFs / Cartas)</span>
+                </h2>
+            </div>
+
+            <!-- Formulario Subir Documento -->
+            <form action="/admin/subir_documento/{{ cliente.id }}" method="POST" enctype="multipart/form-data" class="glass-card p-4 rounded-2xl border border-white/5 space-y-3">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+                    <div>
+                        <label class="block text-slate-400 font-medium mb-1">Tipo de Documento</label>
+                        <select name="tipo_doc" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-purple-500">
+                            <option value="Carta Natal">Carta Natal</option>
+                            <option value="Revolución Solar">Revolución Solar</option>
+                            <option value="Informe Astrológico">Informe Astrológico</option>
+                            <option value="Lectura de Tarot">Lectura de Tarot</option>
+                            <option value="Otro Documento">Otro Documento</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-slate-400 font-medium mb-1">Archivo (PDF o Imagen)</label>
+                        <input type="file" name="archivo" required accept=".pdf,.png,.jpg,.jpeg" class="w-full text-slate-300 text-xs file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-purple-600 file:text-white hover:file:bg-purple-500">
+                    </div>
                 </div>
-                <div class="w-full md:w-1/2">
-                    <label class="block text-xs text-slate-400 mb-1">Archivo (PDF o Imagen)</label>
-                    <input type="file" name="archivo" required class="w-full text-xs text-slate-300 file:mr-4 file:py-2.5 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-purple-600 file:text-white hover:file:bg-purple-500 cursor-pointer">
-                </div>
-                <button type="submit" class="w-full md:w-auto bg-purple-600 hover:bg-purple-500 text-white font-bold px-5 py-2.5 rounded-lg text-sm transition shadow-md shrink-0">
-                    Subir & Notificar
+                <button type="submit" class="bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs px-4 py-2.5 rounded-xl transition shadow-lg shadow-purple-600/20">
+                    Subir & Notificar al Portal
                 </button>
             </form>
 
-            <!-- Lista de Archivos Adjuntos -->
-            <div class="space-y-3">
-                <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Archivos Adjuntos</h3>
-
+            <!-- Lista de Archivos -->
+            <div class="space-y-2">
                 {% if documentos %}
-                    <ul class="divide-y divide-slate-700/60">
-                        {% for doc in documentos %}
-                        <li class="py-3 flex flex-col md:flex-row justify-between items-start md:items-center gap-2 text-sm">
-                            <div class="pr-2">
-                                <span class="font-semibold text-purple-300">[{{ doc.tipo_doc }}]</span>
-                                <span class="text-slate-300 ml-2 break-all">{{ doc.nombre_archivo }}</span>
-                                <span class="text-xs text-slate-500 block mt-0.5">{{ doc.fecha_subida }}</span>
-                            </div>
-                            
-                            <div class="flex items-center gap-2 shrink-0">
-                                <a href="/uploads/{{ doc.nombre_archivo }}" target="_blank" class="bg-slate-700 hover:bg-slate-600 text-xs px-3 py-1.5 rounded border border-slate-600 transition">
-                                    Ver / Descargar ↗
-                                </a>
+                    {% for doc in documentos %}
+                    <div class="glass-card p-4 rounded-2xl flex justify-between items-center text-xs border border-white/5">
+                        <div class="space-y-1">
+                            <span class="bg-purple-500/20 text-purple-300 text-[10px] font-bold px-2 py-0.5 rounded-full border border-purple-500/30">
+                                {{ doc.tipo_doc }}
+                            </span>
+                            <p class="font-bold text-white break-all">{{ doc.nombre_archivo }}</p>
+                            <p class="text-[10px] text-slate-500">Subido el: {{ doc.fecha_subida }}</p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <a href="/uploads/{{ doc.nombre_archivo }}" target="_blank" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-2 rounded-xl transition">
+                                Ver PDF
+                            </a>
+                            <button onclick="document.getElementById('modal-eliminar-{{ doc.id }}').classList.remove('hidden')" class="bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 p-2 rounded-xl transition">
+                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                    </div>
 
-                                <button type="button" onclick="document.getElementById('modal-delete-{{ doc.id }}').classList.toggle('hidden')" class="bg-red-900/30 hover:bg-red-900/60 text-red-400 border border-red-500/30 text-xs px-3 py-1.5 rounded transition">
-                                    🗑️ Eliminar
-                                </button>
-                            </div>
-                        </li>
-
-                        <!-- Formulario Oculto de Clave de Borrado -->
-                        <div id="modal-delete-{{ doc.id }}" class="hidden bg-slate-900/90 p-3 rounded-lg border border-red-500/40 my-2 shadow-inner">
-                            <form action="/admin/eliminar_documento/{{ doc.id }}" method="POST" class="flex flex-col sm:flex-row items-center gap-2">
+                    <!-- Modal Eliminar Documento -->
+                    <div id="modal-eliminar-{{ doc.id }}" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+                        <div class="glass-panel max-w-sm w-full p-6 rounded-3xl space-y-4 border border-white/10 shadow-2xl">
+                            <h3 class="text-sm font-bold text-rose-400">Confirmar Eliminación</h3>
+                            <p class="text-xs text-slate-300">Ingresa tu contraseña de administrador para eliminar este archivo:</p>
+                            <form action="/admin/eliminar_documento/{{ doc.id }}" method="POST" class="space-y-3">
                                 <input type="hidden" name="cliente_id" value="{{ cliente.id }}">
-                                <input type="password" name="password" placeholder="Ingresa la clave para borrar" required class="bg-slate-800 border border-slate-600 rounded text-xs px-3 py-2 text-white focus:outline-none focus:border-red-400 w-full sm:w-64">
-                                <div class="flex items-center gap-2 w-full sm:w-auto">
-                                    <button type="submit" class="bg-red-600 hover:bg-red-500 text-white font-bold text-xs px-4 py-2 rounded transition w-full sm:w-auto">
-                                        Confirmar
-                                    </button>
-                                    <button type="button" onclick="document.getElementById('modal-delete-{{ doc.id }}').classList.add('hidden')" class="text-slate-400 hover:text-white text-xs px-2 py-2">
-                                        Cancelar
-                                    </button>
+                                <input type="password" name="password" required placeholder="Contraseña Admin" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
+                                <div class="flex gap-2">
+                                    <button type="button" onclick="document.getElementById('modal-eliminar-{{ doc.id }}').classList.add('hidden')" class="w-1/2 bg-slate-800 text-slate-300 py-2 rounded-xl text-xs font-bold">Cancelar</button>
+                                    <button type="submit" class="w-1/2 bg-rose-600 hover:bg-rose-500 text-white py-2 rounded-xl text-xs font-bold">Eliminar</button>
                                 </div>
                             </form>
                         </div>
-                        {% endfor %}
-                    </ul>
+                    </div>
+                    {% endfor %}
                 {% else %}
-                    <p class="text-xs text-slate-500 italic">No hay documentos subidos para este cliente.</p>
+                    <p class="text-xs text-slate-500 italic py-2">No hay documentos subidos para este consultante.</p>
                 {% endif %}
             </div>
-
         </div>
 
-        <!-- Bitácora / Notas Privadas de la Sesión (Solo Visibles por el Admin) -->
-        <div class="bg-slate-800 border border-slate-700 rounded-xl p-6 shadow-xl space-y-4">
-            <h2 class="text-lg font-bold text-purple-300 flex items-center gap-2">
-                <span>📝</span> Notas Privadas de Sesión (Solo visibles por Maru)
+        <!-- Módulo: Notas Privadas -->
+        <div class="glass-panel p-6 md:p-8 rounded-3xl shadow-2xl space-y-6 border border-white/10">
+            <h2 class="text-lg font-bold text-white flex items-center gap-2">
+                <i data-lucide="lock" class="w-5 h-5 text-amber-400"></i>
+                <span>Notas Privadas de Sesión (Solo visibles por Maru)</span>
             </h2>
 
-            <form action="/admin/guardar_nota/{{ cliente.id }}" method="POST" class="space-y-3">
-                <textarea name="contenido" rows="3" required placeholder="Escribe aquí apuntes de la tirada de tarot, aspectos astrológicos discutidos..." class="w-full bg-slate-700/50 border border-slate-600 rounded-lg p-3 text-xs text-white focus:outline-none focus:border-purple-400"></textarea>
-                <button type="submit" class="bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs px-4 py-2 rounded-lg transition shadow">
+            <form action="/admin/guardar_nota" method="POST" class="space-y-3">
+                <input type="hidden" name="cliente_id" value="{{ cliente.id }}">
+                <textarea name="contenido" rows="3" required placeholder="Escribe aquí apuntes de la tirada de tarot, aspectos astrológicos discutidos..." class="w-full bg-slate-900/80 border border-slate-700 rounded-2xl p-4 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500"></textarea>
+                <button type="submit" class="bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs px-4 py-2.5 rounded-xl transition shadow-lg shadow-purple-600/20">
                     Guardar Nota Privada
                 </button>
             </form>
 
-            <div class="space-y-2 pt-2">
-                {% for n in notas %}
-                <div class="bg-slate-700/30 border border-slate-700 p-3 rounded-lg text-xs space-y-1">
-                    <span class="text-[10px] text-slate-500 block">{{ n.fecha }}</span>
-                    <p class="text-slate-200 whitespace-pre-line">{{ n.contenido }}</p>
-                </div>
+            <div class="space-y-2">
+                {% if notas %}
+                    {% for nota in notas %}
+                    <div class="glass-card p-4 rounded-2xl border border-white/5 space-y-1">
+                        <p class="text-xs text-slate-300 leading-relaxed">{{ nota.contenido }}</p>
+                        <p class="text-[10px] text-slate-500 font-mono">{{ nota.fecha }}</p>
+                    </div>
+                    {% endfor %}
                 {% else %}
-                <p class="text-xs text-slate-500 italic">No hay notas privadas registradas para este consultante.</p>
-                {% endfor %}
-            </div>
-        </div>
-
-        <!-- Historial de Citas -->
-        <div class="bg-slate-800 border border-slate-700 rounded-xl p-6 shadow-xl space-y-4">
-            <h2 class="text-lg font-bold text-purple-300">Historial de Citas</h2>
-            <div class="overflow-x-auto">
-                <table class="w-full text-left text-xs text-slate-300">
-                    <thead class="bg-slate-700/50 text-slate-400 uppercase">
-                        <tr>
-                            <th class="p-3">Servicio</th>
-                            <th class="p-3">Fecha y Hora</th>
-                            <th class="p-3">Estado</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-slate-700/60">
-                        {% for cita in citas %}
-                        <tr>
-                            <td class="p-3 font-semibold text-white">{{ cita.servicio }}</td>
-                            <td class="p-3">{{ cita.fecha_cita }} — {{ cita.hora_cita }}</td>
-                            <td class="p-3">
-                                <span class="px-2 py-0.5 rounded text-[11px] {% if cita.estado == 'Completada' %}bg-green-900/50 text-green-300 border border-green-500/30{% else %}bg-purple-900/50 text-purple-300 border border-purple-500/30{% endif %}">
-                                    {{ cita.estado }}
-                                </span>
-                            </td>
-                        </tr>
-                        {% else %}
-                        <tr>
-                            <td colspan="3" class="p-4 text-center text-slate-500 italic">No hay citas registradas.</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- Historial de Pagos -->
-        <div class="bg-slate-800 border border-slate-700 rounded-xl p-6 shadow-xl space-y-4">
-            <h2 class="text-lg font-bold text-purple-300">Historial de Pagos</h2>
-            <div class="overflow-x-auto">
-                <table class="w-full text-left text-xs text-slate-300">
-                    <thead class="bg-slate-700/50 text-slate-400 uppercase">
-                        <tr>
-                            <th class="p-3">Concepto</th>
-                            <th class="p-3">Método</th>
-                            <th class="p-3">Fecha</th>
-                            <th class="p-3 text-right">Monto</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-slate-700/60">
-                        {% for pago in pagos %}
-                        <tr>
-                            <td class="p-3 font-semibold text-white">{{ pago.concepto }}</td>
-                            <td class="p-3"><span class="bg-slate-700 px-2 py-0.5 rounded text-[11px]">{{ pago.metodo_pago }}</span></td>
-                            <td class="p-3 text-slate-400">{{ pago.fecha_pago }}</td>
-                            <td class="p-3 text-right font-bold text-green-400">${{ "%.2f"|format(pago.monto) }}</td>
-                        </tr>
-                        {% else %}
-                        <tr>
-                            <td colspan="4" class="p-4 text-center text-slate-500 italic">No hay pagos registrados para este cliente.</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+                    <p class="text-xs text-slate-500 italic">No hay notas privadas registradas para este consultante.</p>
+                {% endif %}
             </div>
         </div>
 
     </div>
+
+    <script>lucide.createIcons();</script>
 </body>
 </html>

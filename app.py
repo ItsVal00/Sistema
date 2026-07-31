@@ -1,6 +1,6 @@
-import secrets
 import os
 import json
+import secrets
 import sqlite3
 from datetime import datetime
 from functools import wraps
@@ -29,7 +29,6 @@ else:
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 ALLOWED_EXTENSIONS = {'pdf', 'png', 'jpg', 'jpeg'}
-
 
 if IS_POSTGRES:
     import psycopg2
@@ -68,14 +67,14 @@ def client_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if not session.get('client_logged_in'):
-            flash("Inicia sesión para acceder a tu portal.", "error")
-            return redirect(url_for('cliente_login'))
+            flash("Enlace de acceso requerido.", "error")
+            return redirect(url_for('registro_form'))
         return f(*args, **kwargs)
     return decorated_function
 
 
 # -------------------------------------------------------------
-# RUTAS PÚBLICAS Y FORMULARIO DE REGISTRO
+# RUTAS PÚBLICAS Y REGISTRO
 # -------------------------------------------------------------
 
 @app.route('/')
@@ -100,7 +99,6 @@ def registro_form():
             flash("Por favor completa los campos obligatorios.", "error")
             return render_template('formulario.html')
 
-        # Generar un token único seguro
         token_acceso = secrets.token_urlsafe(32)
 
         conn = get_db_connection()
@@ -129,8 +127,6 @@ def registro_form():
                 cursor.execute(query_servicio, (cliente_id, servicio))
 
             conn.commit()
-            
-            # Redirigir directamente a su dashboard único tras llenar el formulario
             return redirect(url_for('mi_cuenta_token', token=token_acceso))
 
         except Exception as e:
@@ -143,11 +139,23 @@ def registro_form():
     return render_template('formulario.html')
 
 
-# -------------------------------------------------------------
-# RUTAS DEL CLIENTE (PORTAL PRIVADO)
-# -------------------------------------------------------------
+# Redirecciones de seguridad para login antiguo
+@app.route('/login')
+def cliente_login():
+    return redirect(url_for('registro_form'))
 
 
+@app.route('/logout')
+def cliente_logout():
+    session.pop('client_logged_in', None)
+    session.pop('cliente_id', None)
+    session.pop('cliente_nombre', None)
+    return redirect(url_for('index'))
+
+
+# -------------------------------------------------------------
+# RUTAS DEL PORTAL DEL CLIENTE (POR TOKEN)
+# -------------------------------------------------------------
 
 @app.route('/mi-cuenta')
 @client_required
@@ -206,7 +214,6 @@ def mi_cuenta_token(token):
         flash("El enlace de acceso no es válido o ha expirado.", "error")
         return redirect(url_for('registro_form'))
 
-    # Autenticar automáticamente al usuario
     session['client_logged_in'] = True
     session['cliente_id'] = cliente['id']
     session['cliente_nombre'] = cliente['nombre']
@@ -236,7 +243,6 @@ def solicitar_servicio():
         flash("Solicitud enviada correctamente. Maru se pondrá en contacto contigo.", "exito")
 
     return redirect(url_for('mi_cuenta'))
-
 
 
 # -------------------------------------------------------------
@@ -275,7 +281,6 @@ def admin_dashboard():
     cursor = conn.cursor()
     param_symbol = '%s' if IS_POSTGRES else '?'
 
-    # 1. Búsqueda y Lista de Clientes
     if search_query:
         like_str = f"%{search_query}%"
         query_clientes = f'''
@@ -288,7 +293,6 @@ def admin_dashboard():
         cursor.execute("SELECT * FROM clientes ORDER BY nombre ASC")
     clientes = cursor.fetchall()
 
-    # 2. Solicitudes Entrantes
     cursor.execute('''
         SELECT s.id, s.servicio_nombre, s.fecha_solicitud, s.estado,
                c.nombre AS cliente_nombre, c.telefono, c.email
@@ -299,7 +303,6 @@ def admin_dashboard():
     ''')
     solicitudes = cursor.fetchall()
 
-    # 3. Citas para Calendario
     cursor.execute('''
         SELECT citas.id, citas.servicio, citas.fecha_cita, citas.hora_cita, citas.estado,
                citas.nombre_manual, citas.contacto_manual,
@@ -319,7 +322,6 @@ def admin_dashboard():
             'backgroundColor': '#9333ea' if c['estado'] == 'Confirmada' else '#3b82f6'
         })
 
-    # 4. Historial de Pagos
     cursor.execute('''
         SELECT pagos.*, clientes.nombre AS cliente_nombre
         FROM pagos
@@ -332,14 +334,9 @@ def admin_dashboard():
     row_ingresos = cursor.fetchone()
     total_ingresos = (row_ingresos['total'] or 0) if row_ingresos else 0
 
-    # 5. Métricas Básicas
     cursor.execute("SELECT COUNT(*) AS total FROM clientes")
     total_clientes = cursor.fetchone()['total']
 
-    total_activos = total_clientes
-    total_inactivos = 0
-
-    # Top Servicios
     cursor.execute('''
         SELECT servicio_nombre, COUNT(*) AS total
         FROM servicios_cliente
@@ -358,14 +355,53 @@ def admin_dashboard():
         pagos=pagos,
         total_ingresos=total_ingresos,
         total_clientes=total_clientes,
-        total_activos=total_activos,
-        total_inactivos=total_inactivos,
+        total_activos=total_clientes,
+        total_inactivos=0,
         servicios_top=servicios_top,
         top_signos=[],
         top_lugares=[],
         alertas=[],
         search_query=search_query
     )
+
+
+@app.route('/admin/crear_cliente', methods=['POST'])
+@admin_required
+def crear_cliente():
+    nombre = request.form.get('nombre', '').strip()
+    telefono = request.form.get('telefono', '').strip()
+    email = request.form.get('email', '').strip().lower()
+    fecha_nac = request.form.get('fecha_nacimiento')
+    hora_nac = request.form.get('hora_nacimiento', '').strip()
+    lugar_nac = request.form.get('lugar_nacimiento', '').strip()
+    motivo = request.form.get('motivo_consulta', '').strip()
+    referido_por = request.form.get('referido_por', '').strip()
+
+    if not nombre or not telefono or not email or not fecha_nac:
+        flash("Completa los campos obligatorios (Nombre, Teléfono, Email y Fecha de Nacimiento).", "error")
+        return redirect(url_for('admin_dashboard'))
+
+    token_acceso = secrets.token_urlsafe(32)
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    param_symbol = '%s' if IS_POSTGRES else '?'
+
+    try:
+        query_cliente = f'''
+            INSERT INTO clientes (nombre, telefono, email, fecha_nacimiento, hora_nacimiento, lugar_nacimiento, motivo_consulta, referido_por, token_acceso)
+            VALUES ({param_symbol}, {param_symbol}, {param_symbol}, {param_symbol}, {param_symbol}, {param_symbol}, {param_symbol}, {param_symbol}, {param_symbol})
+        '''
+        cursor.execute(query_cliente, (nombre, telefono, email, fecha_nac, hora_nac, lugar_nac, motivo, referido_por, token_acceso))
+        conn.commit()
+        flash(f"Consultante '{nombre}' registrado correctamente.", "exito")
+    except Exception as e:
+        conn.rollback()
+        flash(f"Error al crear consultante: {str(e)}", "error")
+    finally:
+        conn.close()
+
+    return redirect(url_for('admin_dashboard'))
 
 
 @app.route('/admin/agendar_cita', methods=['POST'])
@@ -404,6 +440,21 @@ def agendar_cita():
     conn.commit()
     conn.close()
     flash("Cita agendada correctamente.", "exito")
+    return redirect(url_for('admin_dashboard'))
+
+
+@app.route('/admin/eliminar_cita/<int:cita_id>')
+@admin_required
+def eliminar_cita(cita_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    param_symbol = '%s' if IS_POSTGRES else '?'
+
+    cursor.execute(f"DELETE FROM citas WHERE id = {param_symbol}", (cita_id,))
+    conn.commit()
+    conn.close()
+
+    flash("Cita eliminada correctamente de la agenda.", "exito")
     return redirect(url_for('admin_dashboard'))
 
 
@@ -462,7 +513,6 @@ def admin_cliente_detalle(cliente_id):
         flash("Cliente no encontrado.", "error")
         return redirect(url_for('admin_dashboard'))
 
-    # Si el cliente antiguo no tiene token por alguna razón, se le genera uno al instante
     if not cliente['token_acceso']:
         token_nuevo = secrets.token_urlsafe(32)
         cursor.execute(f"UPDATE clientes SET token_acceso = {param_symbol} WHERE id = {param_symbol}", (token_nuevo, cliente_id))
@@ -498,6 +548,7 @@ def admin_cliente_detalle(cliente_id):
         notas=notas
     )
 
+
 @app.route('/admin/guardar_nota', methods=['POST'])
 @admin_required
 def guardar_nota():
@@ -518,7 +569,7 @@ def guardar_nota():
 
 
 # -------------------------------------------------------------
-# DOCUMENTOS: SUBIR / VER / ELIMINAR (rutas seguras)
+# GESTIÓN DE DOCUMENTOS
 # -------------------------------------------------------------
 
 @app.route('/uploads/<path:filename>')
@@ -626,7 +677,7 @@ def admin_logout():
     return redirect(url_for('admin_login'))
 
 
-# Exportaciones a CSV
+# Exportaciones CSV
 @app.route('/admin/exportar_clientes')
 @admin_required
 def exportar_clientes():
@@ -668,21 +719,6 @@ def exportar_pagos():
         mimetype="text/csv",
         headers={"Content-disposition": "attachment; filename=reporte_pagos_maru.csv"}
     )
-
-
-@app.route('/admin/eliminar_cita/<int:cita_id>')
-@admin_required
-def eliminar_cita(cita_id):
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    param_symbol = '%s' if IS_POSTGRES else '?'
-
-    cursor.execute(f"DELETE FROM citas WHERE id = {param_symbol}", (cita_id,))
-    conn.commit()
-    conn.close()
-
-    flash("Cita eliminada correctamente de la agenda.", "exito")
-    return redirect(url_for('admin_dashboard'))
 
 
 if __name__ == '__main__':
