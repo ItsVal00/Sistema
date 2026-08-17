@@ -23,8 +23,6 @@
             backdrop-filter: blur(8px);
             border: 1px solid rgba(255, 255, 255, 0.05);
         }
-        .hide-scrollbar::-webkit-scrollbar { display: none; }
-        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
 <body class="bg-[#0b0f19] text-slate-100 min-h-screen p-4 md:p-8 antialiased selection:bg-purple-500 selection:text-white relative overflow-x-hidden">
@@ -177,22 +175,19 @@
         <!-- SECCIÓN: CATÁLOGO DE SERVICIOS + CARRUSEL -->
         <!-- ========================================== -->
         <div class="glass-panel rounded-3xl p-6 md:p-8 shadow-2xl space-y-8">
-            <div class="flex items-center justify-between">
-                <div>
-                    <h2 class="text-lg md:text-xl font-extrabold text-white flex items-center gap-2">
-                        <i data-lucide="sparkles" class="w-5 h-5 text-amber-400"></i>
-                        <span>Servicios & Experiencias Astrológicas</span>
-                    </h2>
-                    <p class="text-xs text-slate-400 mt-1">Conoce cada una de las disciplinas y solicita tu próxima sesión</p>
-                </div>
+            <div>
+                <h2 class="text-lg md:text-xl font-extrabold text-white flex items-center gap-2">
+                    <i data-lucide="sparkles" class="w-5 h-5 text-amber-400"></i>
+                    <span>Servicios & Experiencias Astrológicas</span>
+                </h2>
+                <p class="text-xs text-slate-400 mt-1">Conoce cada una de las disciplinas y solicita tu próxima sesión</p>
             </div>
 
             <!-- CARRUSEL VISUAL DE SERVICIOS -->
             <div class="relative group max-w-2xl mx-auto overflow-hidden rounded-3xl border border-white/10 bg-slate-950/60 shadow-2xl">
-                <!-- Slides Container -->
                 <div id="carrusel-slides" class="flex transition-transform duration-500 ease-out">
                     
-                    <!-- Slide 1: Astrología Evolutiva -->
+                    <!-- Slide 1 -->
                     <div class="min-w-full relative aspect-[3/4] md:aspect-[4/5] flex items-center justify-center bg-slate-900">
                         <img src="{{ url_for('static', filename='img/01_astrologia_evolutiva.jpg') }}" alt="01 Astrología Evolutiva" class="w-full h-full object-contain">
                         <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[#0b0f19] via-[#0b0f19]/80 to-transparent p-6 text-center">
@@ -201,7 +196,7 @@
                         </div>
                     </div>
 
-                    <!-- Slide 2: Tarot Evolutivo -->
+                    <!-- Slide 2 -->
                     <div class="min-w-full relative aspect-[3/4] md:aspect-[4/5] flex items-center justify-center bg-slate-900">
                         <img src="{{ url_for('static', filename='img/02_tarot_evolutivo.jpg') }}" alt="02 Tarot Evolutivo" class="w-full h-full object-contain">
                         <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[#0b0f19] via-[#0b0f19]/80 to-transparent p-6 text-center">
@@ -210,7 +205,7 @@
                         </div>
                     </div>
 
-                    <!-- Slide 3: Magia Planetaria -->
+                    <!-- Slide 3 -->
                     <div class="min-w-full relative aspect-[3/4] md:aspect-[4/5] flex items-center justify-center bg-slate-900">
                         <img src="{{ url_for('static', filename='img/03_magia_planetaria.jpg') }}" alt="03 Magia Planetaria" class="w-full h-full object-contain">
                         <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[#0b0f19] via-[#0b0f19]/80 to-transparent p-6 text-center">
@@ -219,7 +214,7 @@
                         </div>
                     </div>
 
-                    <!-- Slide 4: Canalización -->
+                    <!-- Slide 4 -->
                     <div class="min-w-full relative aspect-[3/4] md:aspect-[4/5] flex items-center justify-center bg-slate-900">
                         <img src="{{ url_for('static', filename='img/04_canalizacion.jpg') }}" alt="04 Canalización" class="w-full h-full object-contain">
                         <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[#0b0f19] via-[#0b0f19]/80 to-transparent p-6 text-center">
@@ -228,7 +223,7 @@
                         </div>
                     </div>
 
-                    <!-- Slide 5: Radiestesia -->
+                    <!-- Slide 5 -->
                     <div class="min-w-full relative aspect-[3/4] md:aspect-[4/5] flex items-center justify-center bg-slate-900">
                         <img src="{{ url_for('static', filename='img/05_radiestesia.jpg') }}" alt="05 Radiestesia" class="w-full h-full object-contain">
                         <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[#0b0f19] via-[#0b0f19]/80 to-transparent p-6 text-center">
@@ -237,7 +232,7 @@
                         </div>
                     </div>
 
-                    <!-- Slide 6: Astrología del Dinero -->
+                    <!-- Slide 6 -->
                     <div class="min-w-full relative aspect-[3/4] md:aspect-[4/5] flex items-center justify-center bg-slate-900">
                         <img src="{{ url_for('static', filename='img/06_astrologia_dinero.jpg') }}" alt="06 Astrología del Dinero" class="w-full h-full object-contain">
                         <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[#0b0f19] via-[#0b0f19]/80 to-transparent p-6 text-center">
@@ -246,7 +241,7 @@
                         </div>
                     </div>
 
-                    <!-- Slide 7: Chakras -->
+                    <!-- Slide 7 -->
                     <div class="min-w-full relative aspect-[3/4] md:aspect-[4/5] flex items-center justify-center bg-slate-900">
                         <img src="{{ url_for('static', filename='img/07_chakras.jpg') }}" alt="07 Limpieza de Chakras" class="w-full h-full object-contain">
                         <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[#0b0f19] via-[#0b0f19]/80 to-transparent p-6 text-center">
@@ -262,23 +257,6 @@
                     <i data-lucide="chevron-left" class="w-5 h-5"></i>
                 </button>
                 <button onclick="nextSlide()" class="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-slate-900/80 hover:bg-purple-600 text-white flex items-center justify-center transition border border-white/10 shadow-lg z-20">
-                    <i data-lucide="chevron-right" class="w-5 h-5"></i>
-                </button>
-
-                <!-- Puntos Indicadores -->
-                <div class="absolute bottom-3 inset-x-0 flex justify-center gap-1.5 z-20">
-                    {% for i in range(7) %}
-                    <button type="button" data-slide="{{ i }}" class="carrusel-dot w-2 h-2 rounded-full transition-all {% if i == 0 %}bg-purple-500 w-5{% else %}bg-white/30{% endif %}"></button>
-                    {% endfor %}
-                </div>
-            </div>
-                </div>
-
-                <!-- Botones Anterior y Siguiente -->
-                <button onclick="prevSlide()" class="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-slate-900/80 hover:bg-purple-600 text-white flex items-center justify-center transition border border-white/10 shadow-lg">
-                    <i data-lucide="chevron-left" class="w-5 h-5"></i>
-                </button>
-                <button onclick="nextSlide()" class="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-slate-900/80 hover:bg-purple-600 text-white flex items-center justify-center transition border border-white/10 shadow-lg">
                     <i data-lucide="chevron-right" class="w-5 h-5"></i>
                 </button>
 
@@ -495,7 +473,7 @@
                     </div>
                 </div>
 
-                <!-- 05 RADIESTESIA Y RADIÓNICA (COMPLETO) -->
+                <!-- 05 RADIESTESIA Y RADIÓNICA -->
                 <div class="glass-card rounded-2xl p-6 border border-teal-500/20 space-y-4">
                     <div class="border-b border-white/5 pb-3">
                         <span class="text-[10px] font-bold uppercase tracking-wider text-teal-400">Categoría 05</span>
@@ -687,7 +665,6 @@
             updateCarrusel();
         }
 
-        // Asignar evento click a los puntos del carrusel
         dots.forEach((dot) => {
             dot.addEventListener('click', function() {
                 const slideIndex = parseInt(this.getAttribute('data-slide'), 10);
@@ -695,10 +672,8 @@
             });
         });
 
-        // Auto avance cada 6 segundos
         let autoPlay = setInterval(nextSlide, 6000);
 
-        // Pausar y reanudar
         const carruselEl = document.getElementById('carrusel-slides');
         if (carruselEl && carruselEl.parentElement) {
             carruselEl.parentElement.addEventListener('mouseenter', function() {
