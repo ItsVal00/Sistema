@@ -429,7 +429,7 @@
                     </div>
                 </div>
 
-                <!-- 04 CANALIZACIÓN -->
+                <!-- 04 CANALIZACIÓN Y GUÍA ESPIRITUAL (COMPLETO) -->
                 <div class="glass-card rounded-2xl p-6 border border-indigo-500/20 space-y-4">
                     <div class="border-b border-white/5 pb-3">
                         <span class="text-[10px] font-bold uppercase tracking-wider text-indigo-400">Categoría 04</span>
@@ -461,11 +461,31 @@
                         </div>
                         <div class="bg-slate-900/60 p-4 rounded-xl flex justify-between items-center gap-2">
                             <div>
+                                <p class="text-xs font-bold text-white">Limpieza y Alineación Energética</p>
+                                <p class="text-[10px] text-slate-400">60 a 90 min — Liberación de cargas, bloqueos y energías densas</p>
+                            </div>
+                            <form action="/solicitar_servicio" method="POST">
+                                <input type="hidden" name="servicio_nombre" value="Limpieza y Alineación Energética">
+                                <button type="submit" class="bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold px-3 py-1.5 rounded-xl transition">Solicitar</button>
+                            </form>
+                        </div>
+                        <div class="bg-slate-900/60 p-4 rounded-xl flex justify-between items-center gap-2">
+                            <div>
                                 <p class="text-xs font-bold text-white">Apertura de Portales</p>
-                                <p class="text-[10px] text-slate-400">60 min — Nuevos caminos y etapas</p>
+                                <p class="text-[10px] text-slate-400">60 min — Activación energética</p>
                             </div>
                             <form action="/solicitar_servicio" method="POST">
                                 <input type="hidden" name="servicio_nombre" value="Apertura de Portales">
+                                <button type="submit" class="bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold px-3 py-1.5 rounded-xl transition">Solicitar</button>
+                            </form>
+                        </div>
+                        <div class="bg-slate-900/60 p-4 rounded-xl flex justify-between items-center gap-2 md:col-span-2">
+                            <div>
+                                <p class="text-xs font-bold text-white">Acompañamiento Espiritual</p>
+                                <p class="text-[10px] text-slate-400">Programa personalizado — Sesiones de acompañamiento continuo</p>
+                            </div>
+                            <form action="/solicitar_servicio" method="POST">
+                                <input type="hidden" name="servicio_nombre" value="Acompañamiento Espiritual">
                                 <button type="submit" class="bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold px-3 py-1.5 rounded-xl transition">Solicitar</button>
                             </form>
                         </div>
@@ -586,7 +606,8 @@
         const dots = document.querySelectorAll('.carrusel-dot');
 
         function updateCarrusel() {
-            slidesContainer.style.transform = `translateX(-${currentSlide * 100}%)`;
+            if (!slidesContainer) return;
+            slidesContainer.style.transform = 'translateX(-' + (currentSlide * 100) + '%)';
             dots.forEach((dot, index) => {
                 if (index === currentSlide) {
                     dot.classList.add('bg-purple-500', 'w-5');
@@ -613,13 +634,27 @@
             updateCarrusel();
         }
 
+        // Asignar evento click a los puntos del carrusel
+        dots.forEach((dot) => {
+            dot.addEventListener('click', function() {
+                const slideIndex = parseInt(this.getAttribute('data-slide'), 10);
+                goToSlide(slideIndex);
+            });
+        });
+
         // Auto avance cada 6 segundos
         let autoPlay = setInterval(nextSlide, 6000);
 
-        // Pausar al pasar el mouse por encima
-        const carruselEl = document.getElementById('carrusel-slides').parentElement;
-        carruselEl.addEventListener('mouseenter', () => clearInterval(autoPlay));
-        carruselEl.addEventListener('mouseleave', () => autoPlay = setInterval(nextSlide, 6000));
+        // Pausar y reanudar con funciones estándar
+        const carruselEl = document.getElementById('carrusel-slides');
+        if (carruselEl && carruselEl.parentElement) {
+            carruselEl.parentElement.addEventListener('mouseenter', function() {
+                clearInterval(autoPlay);
+            });
+            carruselEl.parentElement.addEventListener('mouseleave', function() {
+                autoPlay = setInterval(nextSlide, 6000);
+            });
+        }
     </script>
 </body>
 </html>
