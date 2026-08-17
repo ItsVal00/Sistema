@@ -4,17 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mi Portal — {{ cliente.nombre }}</title>
-    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
 
     <style>
-        body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-        }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
         .glass-panel {
             background: rgba(30, 41, 59, 0.6);
             backdrop-filter: blur(12px);
@@ -29,10 +24,9 @@
 </head>
 <body class="bg-[#0b0f19] text-slate-100 min-h-screen p-4 md:p-8 antialiased selection:bg-purple-500 selection:text-white relative overflow-x-hidden">
 
-    <!-- Efecto Neón de Fondo -->
     <div class="absolute top-0 right-1/4 w-96 h-96 bg-purple-600/10 rounded-full blur-[120px] pointer-events-none"></div>
 
-    <div class="max-w-4xl mx-auto space-y-8 relative z-10">
+    <div class="max-w-5xl mx-auto space-y-8 relative z-10">
         
         <!-- Header -->
         <div class="glass-panel p-6 rounded-3xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 shadow-2xl">
@@ -44,7 +38,7 @@
                     <h1 class="text-xl md:text-2xl font-extrabold bg-gradient-to-r from-purple-300 via-pink-200 to-amber-200 bg-clip-text text-transparent">
                         ¡Hola, {{ cliente.nombre.split(' ')[0] }}! ✨
                     </h1>
-                    <p class="text-xs text-slate-400 font-medium">Bienvenid@ a tu espacio astrológico personal</p>
+                    <p class="text-xs text-slate-400 font-medium">Bienvenid@ a tu espacio astrológico y de evolución personal</p>
                 </div>
             </div>
 
@@ -54,7 +48,7 @@
             </a>
         </div>
 
-        <!-- Mensajes Flasheados -->
+        <!-- Mensajes Flash -->
         {% with messages = get_flashed_messages(with_categories=true) %}
           {% if messages %}
             {% for category, message in messages %}
@@ -66,16 +60,13 @@
           {% endif %}
         {% endwith %}
 
-        <!-- Tarjetas Informativas: Citas -->
+        <!-- Tarjetas: Citas -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            
-            <!-- Próxima Cita -->
-            <div class="glass-panel p-6 rounded-3xl shadow-xl space-y-3 border-purple-500/30 relative overflow-hidden">
+            <div class="glass-panel p-6 rounded-3xl shadow-xl space-y-3 border-purple-500/30">
                 <div class="flex items-center gap-2 text-purple-400 font-bold text-xs uppercase tracking-wider">
                     <i data-lucide="calendar" class="w-4 h-4"></i>
                     <span>Próxima Consulta</span>
                 </div>
-                
                 {% if proxima_cita %}
                     <div>
                         <p class="text-lg font-bold text-white">{{ proxima_cita.servicio }}</p>
@@ -83,7 +74,6 @@
                             Fecha: <span class="font-bold text-purple-300">{{ proxima_cita.fecha_cita }}</span> a las <span class="font-bold text-purple-300">{{ proxima_cita.hora_cita }}</span>
                         </p>
                     </div>
-
                     {% if proxima_cita.link_reunion %}
                         <a href="{{ proxima_cita.link_reunion }}" target="_blank" class="inline-flex items-center gap-2 bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs px-4 py-2.5 rounded-xl transition shadow-lg shadow-purple-600/30">
                             <i data-lucide="video" class="w-4 h-4"></i>
@@ -95,13 +85,11 @@
                 {% endif %}
             </div>
 
-            <!-- Última Consulta -->
             <div class="glass-panel p-6 rounded-3xl shadow-xl space-y-3">
                 <div class="flex items-center gap-2 text-slate-400 font-bold text-xs uppercase tracking-wider">
                     <i data-lucide="history" class="w-4 h-4"></i>
                     <span>Última Consulta</span>
                 </div>
-
                 {% if ultima_cita %}
                     <div>
                         <p class="text-base font-bold text-slate-200">{{ ultima_cita.servicio }}</p>
@@ -111,48 +99,75 @@
                     <p class="text-xs text-slate-400 italic">No hay historial de consultas pasadas.</p>
                 {% endif %}
             </div>
-
         </div>
 
-        <!-- Mis Documentos y Cartas PDF / Imágenes -->
-        <div class="glass-panel rounded-3xl p-6 md:p-8 shadow-2xl space-y-6">
-            <div class="flex items-center gap-3">
-                <div class="p-2.5 rounded-2xl bg-purple-500/10 border border-purple-500/20 text-purple-300">
-                    <i data-lucide="file-text" class="w-5 h-5"></i>
-                </div>
-                <div>
-                    <h2 class="text-lg font-bold text-white">Mis Cartas y Documentos Astrológicos</h2>
-                    <p class="text-xs text-slate-400">Informes y mapas de tu sesión disponibles para descarga</p>
-                </div>
+        <!-- SECCIONES DE DOCUMENTOS POR CATEGORÍA DE SERVICIOS -->
+        <div class="glass-panel rounded-3xl p-6 md:p-8 shadow-2xl space-y-8">
+            <div>
+                <h2 class="text-lg md:text-xl font-extrabold text-white flex items-center gap-2">
+                    <i data-lucide="folder-open" class="w-5 h-5 text-purple-400"></i>
+                    <span>Mis Informes y Documentos por Servicio</span>
+                </h2>
+                <p class="text-xs text-slate-400 mt-1">Tus mapas, grabaciones e informes organizados según el tipo de sesión realizada</p>
             </div>
-            
-            {% if documentos %}
-                <div class="space-y-3">
+
+            {% set categorias = [
+                {'nombre': '01 — Astrología Evolutiva', 'icono': 'sun', 'color': 'text-amber-400', 'border': 'border-amber-500/20'},
+                {'nombre': '02 — Tarot Evolutivo', 'icono': 'sparkles', 'color': 'text-purple-400', 'border': 'border-purple-500/20'},
+                {'nombre': '03 — Magia Planetaria y Práctica', 'icono': 'flame', 'color': 'text-pink-400', 'border': 'border-pink-500/20'},
+                {'nombre': '04 — Canalización y Guía Espiritual', 'icono': 'eye', 'color': 'text-indigo-400', 'border': 'border-indigo-500/20'},
+                {'nombre': '05 — Radiestesia y Radiónica', 'icono': 'compass', 'color': 'text-teal-400', 'border': 'border-teal-500/20'},
+                {'nombre': '06 — Astrología del Dinero y Prosperidad', 'icono': 'coins', 'color': 'text-emerald-400', 'border': 'border-emerald-500/20'},
+                {'nombre': '07 — Limpieza y Alineación de Chakras', 'icono': 'flower-2', 'color': 'text-cyan-400', 'border': 'border-cyan-500/20'}
+            ] %}
+
+            <div class="space-y-6">
+                {% for cat in categorias %}
+                    {% set docs_en_cat = [] %}
                     {% for doc in documentos %}
-                    <div class="glass-card p-4 rounded-2xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border border-white/5 hover:border-purple-500/30 transition-colors">
-                        <div class="space-y-1">
-                            <span class="inline-block bg-purple-500/20 text-purple-300 text-[10px] font-bold px-2.5 py-0.5 rounded-full border border-purple-500/30">
-                                {{ doc.tipo_doc }}
+                        {% if doc.tipo_doc.startswith(cat.nombre[:2]) or cat.nombre.lower() in doc.tipo_doc.lower() or (cat.nombre[:2] == '01' and ('natal' in doc.tipo_doc.lower() or 'solar' in doc.tipo_doc.lower() or 'sinastria' in doc.tipo_doc.lower() or 'vocacional' in doc.tipo_doc.lower())) %}
+                            {% set _ = docs_en_cat.append(doc) %}
+                        {% endif %}
+                    {% endfor %}
+
+                    <div class="glass-card rounded-2xl p-5 border {{ cat.border }} space-y-4">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-sm font-bold {{ cat.color }} flex items-center gap-2">
+                                <i data-lucide="{{ cat.icono }}" class="w-4 h-4"></i>
+                                <span>{{ cat.nombre }}</span>
+                            </h3>
+                            <span class="text-[11px] font-semibold bg-white/5 px-2.5 py-0.5 rounded-full text-slate-300">
+                                {{ docs_en_cat|length }} {{ 'documento' if docs_en_cat|length == 1 else 'documentos' }}
                             </span>
-                            <p class="text-[10px] text-slate-500">Subido el {{ doc.fecha_subida }}</p>
                         </div>
 
-                        <!-- Enlace a Base64 / Data URL -->
-                        <a href="{{ doc.nombre_archivo }}" target="_blank" download="Documento_{{ doc.tipo_doc }}" class="bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs px-4 py-2.5 rounded-xl transition shadow-lg shadow-purple-600/20 flex items-center gap-2 shrink-0 w-full sm:w-auto justify-center">
-                            <i data-lucide="download" class="w-3.5 h-3.5"></i>
-                            <span>Ver / Descargar Documento</span>
-                        </a>
+                        {% if docs_en_cat %}
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                {% for d in docs_en_cat %}
+                                    <div class="bg-slate-900/80 p-4 rounded-xl border border-white/5 flex flex-col justify-between gap-3 hover:border-purple-500/40 transition">
+                                        <div>
+                                            <span class="text-[10px] font-bold uppercase tracking-wider text-purple-300 bg-purple-500/10 px-2 py-0.5 rounded-md border border-purple-500/20">
+                                                {{ d.tipo_doc }}
+                                            </span>
+                                            <p class="text-xs font-semibold text-slate-200 mt-2 truncate">{{ d.nombre_archivo }}</p>
+                                            <p class="text-[10px] text-slate-500 mt-0.5">Fecha: {{ d.fecha_subida }}</p>
+                                        </div>
+                                        <a href="{{ d.nombre_archivo }}" target="_blank" class="w-full bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs py-2 px-3 rounded-xl transition flex items-center justify-center gap-1.5 shadow-md shadow-purple-600/20">
+                                            <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+                                            <span>Abrir Documento ↗</span>
+                                        </a>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <p class="text-xs text-slate-500 italic">No hay reportes ni archivos disponibles en esta sección por el momento.</p>
+                        {% endif %}
                     </div>
-                    {% endfor %}
-                </div>
-            {% else %}
-                <div class="text-center py-6 text-slate-500 italic text-xs">
-                    Maru aún no ha subido informes para ti. Estarán disponibles aquí tras tu sesión.
-                </div>
-            {% endif %}
+                {% endfor %}
+            </div>
         </div>
 
-        <!-- Catálogo de Servicios Disponibles -->
+        <!-- Catálogo de Servicios para Solicitar -->
         <div class="glass-panel rounded-3xl p-6 md:p-8 shadow-2xl space-y-6">
             <div class="flex items-center gap-3">
                 <div class="p-2.5 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-300">
@@ -165,91 +180,49 @@
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
-                
-                <!-- Servicio 1 -->
-                <div class="glass-card p-5 rounded-2xl border border-white/5 flex justify-between items-center gap-3 hover:border-purple-500/30 transition">
+                <div class="glass-card p-5 rounded-2xl border border-white/5 flex justify-between items-center gap-3">
                     <div>
                         <p class="font-bold text-purple-200 text-sm">Carta Natal Evolutiva</p>
                         <p class="text-[11px] text-slate-400 mt-0.5">90 min — Mapa de vida y tendencias</p>
                     </div>
                     <form action="/solicitar_servicio" method="POST" class="shrink-0">
                         <input type="hidden" name="servicio_nombre" value="Carta Natal Evolutiva">
-                        <button type="submit" class="bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold px-3.5 py-2 rounded-xl transition shadow-lg shadow-purple-600/20">
-                            Solicitar
-                        </button>
+                        <button type="submit" class="bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold px-3.5 py-2 rounded-xl transition">Solicitar</button>
                     </form>
                 </div>
 
-                <!-- Servicio 2 -->
-                <div class="glass-card p-5 rounded-2xl border border-white/5 flex justify-between items-center gap-3 hover:border-purple-500/30 transition">
+                <div class="glass-card p-5 rounded-2xl border border-white/5 flex justify-between items-center gap-3">
                     <div>
                         <p class="font-bold text-purple-200 text-sm">Revolución Solar</p>
                         <p class="text-[11px] text-slate-400 mt-0.5">60 min — Tu año personal</p>
                     </div>
                     <form action="/solicitar_servicio" method="POST" class="shrink-0">
                         <input type="hidden" name="servicio_nombre" value="Revolución Solar">
-                        <button type="submit" class="bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold px-3.5 py-2 rounded-xl transition shadow-lg shadow-purple-600/20">
-                            Solicitar
-                        </button>
+                        <button type="submit" class="bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold px-3.5 py-2 rounded-xl transition">Solicitar</button>
                     </form>
                 </div>
 
-                <!-- Servicio 3 -->
-                <div class="glass-card p-5 rounded-2xl border border-white/5 flex justify-between items-center gap-3 hover:border-purple-500/30 transition">
+                <div class="glass-card p-5 rounded-2xl border border-white/5 flex justify-between items-center gap-3">
                     <div>
                         <p class="font-bold text-purple-200 text-sm">Tarot Evolutivo</p>
                         <p class="text-[11px] text-slate-400 mt-0.5">60 min — Guía y orientación</p>
                     </div>
                     <form action="/solicitar_servicio" method="POST" class="shrink-0">
                         <input type="hidden" name="servicio_nombre" value="Tarot Evolutivo">
-                        <button type="submit" class="bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold px-3.5 py-2 rounded-xl transition shadow-lg shadow-purple-600/20">
-                            Solicitar
-                        </button>
+                        <button type="submit" class="bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold px-3.5 py-2 rounded-xl transition">Solicitar</button>
                     </form>
                 </div>
 
-                <!-- Servicio 4 -->
-                <div class="glass-card p-5 rounded-2xl border border-white/5 flex justify-between items-center gap-3 hover:border-purple-500/30 transition">
+                <div class="glass-card p-5 rounded-2xl border border-white/5 flex justify-between items-center gap-3">
                     <div>
                         <p class="font-bold text-purple-200 text-sm">Limpieza de Chakras</p>
                         <p class="text-[11px] text-slate-400 mt-0.5">60 a 90 min — A distancia</p>
                     </div>
                     <form action="/solicitar_servicio" method="POST" class="shrink-0">
                         <input type="hidden" name="servicio_nombre" value="Limpieza de Chakras">
-                        <button type="submit" class="bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold px-3.5 py-2 rounded-xl transition shadow-lg shadow-purple-600/20">
-                            Solicitar
-                        </button>
+                        <button type="submit" class="bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold px-3.5 py-2 rounded-xl transition">Solicitar</button>
                     </form>
                 </div>
-
-                <!-- Servicio 5 -->
-                <div class="glass-card p-5 rounded-2xl border border-white/5 flex justify-between items-center gap-3 hover:border-purple-500/30 transition">
-                    <div>
-                        <p class="font-bold text-purple-200 text-sm">Astrología del Dinero</p>
-                        <p class="text-[11px] text-slate-400 mt-0.5">60 a 90 min — Prosperidad</p>
-                    </div>
-                    <form action="/solicitar_servicio" method="POST" class="shrink-0">
-                        <input type="hidden" name="servicio_nombre" value="Astrología del Dinero">
-                        <button type="submit" class="bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold px-3.5 py-2 rounded-xl transition shadow-lg shadow-purple-600/20">
-                            Solicitar
-                        </button>
-                    </form>
-                </div>
-
-                <!-- Servicio 6 -->
-                <div class="glass-card p-5 rounded-2xl border border-white/5 flex justify-between items-center gap-3 hover:border-purple-500/30 transition">
-                    <div>
-                        <p class="font-bold text-purple-200 text-sm">Lectura Canalizada</p>
-                        <p class="text-[11px] text-slate-400 mt-0.5">60 min — Guías y Maestros</p>
-                    </div>
-                    <form action="/solicitar_servicio" method="POST" class="shrink-0">
-                        <input type="hidden" name="servicio_nombre" value="Lectura Canalizada">
-                        <button type="submit" class="bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold px-3.5 py-2 rounded-xl transition shadow-lg shadow-purple-600/20">
-                            Solicitar
-                        </button>
-                    </form>
-                </div>
-
             </div>
         </div>
 

@@ -4,11 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ficha de {{ cliente.nombre }} — Admin</title>
-    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
 
     <style>
@@ -118,80 +115,159 @@
             {% endif %}
         </div>
 
-        <!-- Módulo: Documentos Astrológicos -->
-        <div class="glass-panel p-6 md:p-8 rounded-3xl shadow-2xl space-y-6 border border-white/10">
-            <div class="flex items-center justify-between">
+        <!-- Módulo: Documentos Astrológicos Seccionados para Admin -->
+        <div class="glass-panel p-6 md:p-8 rounded-3xl shadow-2xl space-y-8 border border-white/10">
+            <div>
                 <h2 class="text-lg font-bold text-white flex items-center gap-2">
-                    <i data-lucide="file-text" class="w-5 h-5 text-purple-400"></i>
-                    <span>Documentos Astrológicos (Google Drive / Canva / Enlaces)</span>
+                    <i data-lucide="folder-plus" class="w-5 h-5 text-purple-400"></i>
+                    <span>Vincular Documento por Servicio</span>
                 </h2>
+                <p class="text-xs text-slate-400 mt-1">Sube y organiza los reportes por cada una de las 7 áreas de servicio</p>
             </div>
 
             <!-- Formulario Vincular Documento -->
             <form action="/admin/subir_documento/{{ cliente.id }}" method="POST" class="glass-card p-4 rounded-2xl border border-white/5 space-y-3">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
                     <div>
-                        <label class="block text-slate-400 font-medium mb-1">Tipo de Documento</label>
+                        <label class="block text-slate-400 font-medium mb-1">Sección / Tipo de Servicio</label>
                         <select name="tipo_doc" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-purple-500">
-                            <option value="Carta Natal">Carta Natal</option>
-                            <option value="Revolución Solar">Revolución Solar</option>
-                            <option value="Informe Astrológico">Informe Astrológico</option>
-                            <option value="Lectura de Tarot">Lectura de Tarot</option>
-                            <option value="Otro Documento">Otro Documento</option>
+                            <!-- 01 ASTROLOGÍA EVOLUTIVA -->
+                            <optgroup label="01 — Astrología Evolutiva" class="bg-slate-900 text-purple-300 font-bold">
+                                <option value="01 — Carta Natal Evolutiva" class="text-white font-normal">Carta Natal Evolutiva (90 min)</option>
+                                <option value="01 — Revolución Solar" class="text-white font-normal">Revolución Solar - Tu Año Personal (60 min)</option>
+                                <option value="01 — Mini Sesión Astrológica" class="text-white font-normal">Mini Sesión Astrológica (30 min)</option>
+                                <option value="01 — Sinastría y Carta Compuesta" class="text-white font-normal">Sinastría y Carta Compuesta (90 min)</option>
+                                <option value="01 — Astrología Empresarial" class="text-white font-normal">Astrología Empresarial (60 a 90 min)</option>
+                                <option value="01 — Astrología Vocacional" class="text-white font-normal">Astrología Vocacional (60 min)</option>
+                            </optgroup>
+                            <!-- 02 TAROT EVOLUTIVO -->
+                            <optgroup label="02 — Tarot Evolutivo" class="bg-slate-900 text-purple-300 font-bold">
+                                <option value="02 — Lectura Profunda Tarot" class="text-white font-normal">Lectura Profunda (60 min)</option>
+                                <option value="02 — Orientación Práctica Tarot" class="text-white font-normal">Orientación Práctica</option>
+                                <option value="02 — Tarot con Tránsitos" class="text-white font-normal">Revisión de Tránsitos</option>
+                            </optgroup>
+                            <!-- 03 MAGIA PLANETARIA -->
+                            <optgroup label="03 — Magia Planetaria y Práctica" class="bg-slate-900 text-purple-300 font-bold">
+                                <option value="03 — Estudio Personalizado" class="text-white font-normal">Estudio Personalizado de Situación</option>
+                                <option value="03 — Diseño de Rituales" class="text-white font-normal">Diseño de Rituales y Herramientas</option>
+                                <option value="03 — Trabajo Energías Planetarias" class="text-white font-normal">Trabajo con Energías Planetarias</option>
+                            </optgroup>
+                            <!-- 04 CANALIZACIÓN -->
+                            <optgroup label="04 — Canalización y Guía Espiritual" class="bg-slate-900 text-purple-300 font-bold">
+                                <option value="04 — Lectura Canalizada" class="text-white font-normal">Lectura Canalizada (60 min)</option>
+                                <option value="04 — Conexión con Guías" class="text-white font-normal">Conexión con Guías y Maestros</option>
+                                <option value="04 — Apertura de Portales" class="text-white font-normal">Apertura de Portales (60 min)</option>
+                            </optgroup>
+                            <!-- 05 RADIESTESIA -->
+                            <optgroup label="05 — Radiestesia y Radiónica" class="bg-slate-900 text-purple-300 font-bold">
+                                <option value="05 — Evaluación con Péndulo" class="text-white font-normal">Evaluación Energética con Péndulo</option>
+                                <option value="05 — Armonización de Espacios" class="text-white font-normal">Armonización de Espacios</option>
+                                <option value="05 — Armonización Personal" class="text-white font-normal">Armonización Energética Personal</option>
+                                <option value="05 — Radiónica y Gráficos" class="text-white font-normal">Radiónica y Gráficos de Armonización</option>
+                            </optgroup>
+                            <!-- 06 ASTROLOGÍA DEL DINERO -->
+                            <optgroup label="06 — Astrología del Dinero y Prosperidad" class="bg-slate-900 text-purple-300 font-bold">
+                                <option value="06 — Carta Natal Financiera" class="text-white font-normal">Análisis de Carta Natal Financiera</option>
+                                <option value="06 — Bloqueos y Patrones" class="text-white font-normal">Bloqueos y Patrones de Escasez</option>
+                                <option value="06 — Plan de Abundancia" class="text-white font-normal">Plan Personalizado de Prosperidad</option>
+                            </optgroup>
+                            <!-- 07 CHAKRAS -->
+                            <optgroup label="07 — Limpieza y Alineación de Chakras" class="bg-slate-900 text-purple-300 font-bold">
+                                <option value="07 — Limpieza Profunda Chakras" class="text-white font-normal">Limpieza Profunda</option>
+                                <option value="07 — Alineación de Chakras" class="text-white font-normal">Alineación de Chakras a Distancia</option>
+                                <option value="07 — Protección y Sellado" class="text-white font-normal">Protección y Sellado Energético</option>
+                            </optgroup>
                         </select>
                     </div>
                     <div>
-                        <label class="block text-slate-400 font-medium mb-1">Enlace del Documento (Drive, Canva, Dropbox)</label>
+                        <label class="block text-slate-400 font-medium mb-1">Enlace del Documento (Google Drive / Canva / Dropbox)</label>
                         <input type="url" name="link_documento" required placeholder="https://drive.google.com/file/d/..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-purple-500">
                     </div>
                 </div>
                 <button type="submit" class="bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs px-4 py-2.5 rounded-xl transition shadow-lg shadow-purple-600/20">
-                    Vincular Documento & Notificar al Portal
+                    Vincular Documento a esta Sección
                 </button>
             </form>
 
-            <!-- Lista de Archivos / Enlaces -->
-            <div class="space-y-2">
-                {% if documentos %}
-                    {% for doc in documentos %}
-                    <div class="glass-card p-4 rounded-2xl flex justify-between items-center text-xs border border-white/5">
-                        <div class="space-y-1">
-                            <span class="bg-purple-500/20 text-purple-300 text-[10px] font-bold px-2 py-0.5 rounded-full border border-purple-500/30">
-                                {{ doc.tipo_doc }}
-                            </span>
-                            <p class="font-bold text-white break-all">{{ doc.nombre_archivo }}</p>
-                            <p class="text-[10px] text-slate-500">Registrado el: {{ doc.fecha_subida }}</p>
-                        </div>
-                        <div class="flex items-center gap-2 shrink-0">
-                            <a href="{{ doc.nombre_archivo }}" target="_blank" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-2 rounded-xl transition flex items-center gap-1.5 font-semibold">
-                                <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
-                                <span>Abrir Enlace</span>
-                            </a>
-                            <button onclick="document.getElementById('modal-eliminar-{{ doc.id }}').classList.remove('hidden')" class="bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 p-2 rounded-xl transition">
-                                <i data-lucide="trash-2" class="w-4 h-4"></i>
-                            </button>
-                        </div>
-                    </div>
+            <!-- Listado Seccionado de Documentos para el Admin -->
+            <div class="space-y-4 pt-2">
+                <h3 class="text-xs font-extrabold uppercase tracking-wider text-slate-400">Documentos del Consultante por Sección:</h3>
 
-                    <!-- Modal Eliminar Documento -->
-                    <div id="modal-eliminar-{{ doc.id }}" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
-                        <div class="glass-panel max-w-sm w-full p-6 rounded-3xl space-y-4 border border-white/10 shadow-2xl">
-                            <h3 class="text-sm font-bold text-rose-400">Confirmar Eliminación</h3>
-                            <p class="text-xs text-slate-300">Ingresa tu contraseña de administrador para eliminar este enlace:</p>
-                            <form action="/admin/eliminar_documento/{{ doc.id }}" method="POST" class="space-y-3">
-                                <input type="hidden" name="cliente_id" value="{{ cliente.id }}">
-                                <input type="password" name="password" required placeholder="Contraseña Admin" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
-                                <div class="flex gap-2">
-                                    <button type="button" onclick="document.getElementById('modal-eliminar-{{ doc.id }}').classList.add('hidden')" class="w-1/2 bg-slate-800 text-slate-300 py-2 rounded-xl text-xs font-bold">Cancelar</button>
-                                    <button type="submit" class="w-1/2 bg-rose-600 hover:bg-rose-500 text-white py-2 rounded-xl text-xs font-bold">Eliminar</button>
+                {% set categorias = [
+                    {'nombre': '01 — Astrología Evolutiva', 'icono': 'sun', 'color': 'text-amber-400', 'border': 'border-amber-500/20'},
+                    {'nombre': '02 — Tarot Evolutivo', 'icono': 'sparkles', 'color': 'text-purple-400', 'border': 'border-purple-500/20'},
+                    {'nombre': '03 — Magia Planetaria y Práctica', 'icono': 'flame', 'color': 'text-pink-400', 'border': 'border-pink-500/20'},
+                    {'nombre': '04 — Canalización y Guía Espiritual', 'icono': 'eye', 'color': 'text-indigo-400', 'border': 'border-indigo-500/20'},
+                    {'nombre': '05 — Radiestesia y Radiónica', 'icono': 'compass', 'color': 'text-teal-400', 'border': 'border-teal-500/20'},
+                    {'nombre': '06 — Astrología del Dinero y Prosperidad', 'icono': 'coins', 'color': 'text-emerald-400', 'border': 'border-emerald-500/20'},
+                    {'nombre': '07 — Limpieza y Alineación de Chakras', 'icono': 'flower-2', 'color': 'text-cyan-400', 'border': 'border-cyan-500/20'}
+                ] %}
+
+                <div class="space-y-4">
+                    {% for cat in categorias %}
+                        {% set docs_en_cat = [] %}
+                        {% for doc in documentos %}
+                            {% if doc.tipo_doc.startswith(cat.nombre[:2]) or cat.nombre.lower() in doc.tipo_doc.lower() or (cat.nombre[:2] == '01' and ('natal' in doc.tipo_doc.lower() or 'solar' in doc.tipo_doc.lower() or 'sinastria' in doc.tipo_doc.lower() or 'vocacional' in doc.tipo_doc.lower())) %}
+                                {% set _ = docs_en_cat.append(doc) %}
+                            {% endif %}
+                        {% endfor %}
+
+                        <div class="glass-card rounded-2xl p-4 border {{ cat.border }} space-y-3">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-bold {{ cat.color }} flex items-center gap-1.5">
+                                    <i data-lucide="{{ cat.icono }}" class="w-3.5 h-3.5"></i>
+                                    <span>{{ cat.nombre }}</span>
+                                </span>
+                                <span class="text-[10px] font-semibold bg-white/5 px-2 py-0.5 rounded-full text-slate-300">
+                                    {{ docs_en_cat|length }}
+                                </span>
+                            </div>
+
+                            {% if docs_en_cat %}
+                                <div class="space-y-2">
+                                    {% for doc in docs_en_cat %}
+                                    <div class="bg-slate-900/80 p-3 rounded-xl flex justify-between items-center text-xs border border-white/5">
+                                        <div class="space-y-0.5 max-w-[65%]">
+                                            <span class="bg-purple-500/20 text-purple-300 text-[10px] font-bold px-2 py-0.5 rounded-md border border-purple-500/30">
+                                                {{ doc.tipo_doc }}
+                                            </span>
+                                            <p class="font-semibold text-slate-200 truncate mt-1">{{ doc.nombre_archivo }}</p>
+                                            <p class="text-[10px] text-slate-500">Registrado el: {{ doc.fecha_subida }}</p>
+                                        </div>
+                                        <div class="flex items-center gap-2 shrink-0">
+                                            <a href="{{ doc.nombre_archivo }}" target="_blank" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-xl transition flex items-center gap-1.5 font-semibold text-xs">
+                                                <i data-lucide="external-link" class="w-3 h-3"></i>
+                                                <span>Abrir</span>
+                                            </a>
+                                            <button onclick="document.getElementById('modal-eliminar-{{ doc.id }}').classList.remove('hidden')" class="bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 p-1.5 rounded-xl transition">
+                                                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <!-- Modal Eliminar Documento -->
+                                    <div id="modal-eliminar-{{ doc.id }}" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+                                        <div class="glass-panel max-w-sm w-full p-6 rounded-3xl space-y-4 border border-white/10 shadow-2xl">
+                                            <h3 class="text-sm font-bold text-rose-400">Confirmar Eliminación</h3>
+                                            <p class="text-xs text-slate-300">Ingresa tu contraseña de administrador para eliminar este enlace:</p>
+                                            <form action="/admin/eliminar_documento/{{ doc.id }}" method="POST" class="space-y-3">
+                                                <input type="hidden" name="cliente_id" value="{{ cliente.id }}">
+                                                <input type="password" name="password" required placeholder="Contraseña Admin" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
+                                                <div class="flex gap-2">
+                                                    <button type="button" onclick="document.getElementById('modal-eliminar-{{ doc.id }}').classList.add('hidden')" class="w-1/2 bg-slate-800 text-slate-300 py-2 rounded-xl text-xs font-bold">Cancelar</button>
+                                                    <button type="submit" class="w-1/2 bg-rose-600 hover:bg-rose-500 text-white py-2 rounded-xl text-xs font-bold">Eliminar</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
                                 </div>
-                            </form>
+                            {% else %}
+                                <p class="text-[11px] text-slate-500 italic">Sin archivos registrados en esta categoría.</p>
+                            {% endif %}
                         </div>
-                    </div>
                     {% endfor %}
-                {% else %}
-                    <p class="text-xs text-slate-500 italic py-2">No hay documentos vinculados para este consultante.</p>
-                {% endif %}
+                </div>
             </div>
         </div>
 
