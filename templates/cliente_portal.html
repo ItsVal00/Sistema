@@ -429,7 +429,7 @@
                     </div>
                 </div>
 
-                <!-- 04 CANALIZACIÓN Y GUÍA ESPIRITUAL (COMPLETO) -->
+                <!-- 04 CANALIZACIÓN Y GUÍA ESPIRITUAL -->
                 <div class="glass-card rounded-2xl p-6 border border-indigo-500/20 space-y-4">
                     <div class="border-b border-white/5 pb-3">
                         <span class="text-[10px] font-bold uppercase tracking-wider text-indigo-400">Categoría 04</span>
@@ -492,7 +492,7 @@
                     </div>
                 </div>
 
-                <!-- 05 RADIESTESIA -->
+                <!-- 05 RADIESTESIA Y RADIÓNICA (COMPLETO) -->
                 <div class="glass-card rounded-2xl p-6 border border-teal-500/20 space-y-4">
                     <div class="border-b border-white/5 pb-3">
                         <span class="text-[10px] font-bold uppercase tracking-wider text-teal-400">Categoría 05</span>
@@ -505,7 +505,7 @@
                         <div class="bg-slate-900/60 p-4 rounded-xl flex justify-between items-center gap-2">
                             <div>
                                 <p class="text-xs font-bold text-white">Evaluación Energética con Péndulo</p>
-                                <p class="text-[10px] text-slate-400">60 min — Diagnóstico de energía y bloqueos</p>
+                                <p class="text-[10px] text-slate-400">60 min — Exploración de bloqueos y potenciales</p>
                             </div>
                             <form action="/solicitar_servicio" method="POST">
                                 <input type="hidden" name="servicio_nombre" value="Evaluación con Péndulo">
@@ -515,10 +515,50 @@
                         <div class="bg-slate-900/60 p-4 rounded-xl flex justify-between items-center gap-2">
                             <div>
                                 <p class="text-xs font-bold text-white">Armonización de Espacios</p>
-                                <p class="text-[10px] text-slate-400">60 a 90 min — Hogar y negocios</p>
+                                <p class="text-[10px] text-slate-400">60 a 90 min — Limpieza y equilibrio para hogar y negocios</p>
                             </div>
                             <form action="/solicitar_servicio" method="POST">
                                 <input type="hidden" name="servicio_nombre" value="Armonización de Espacios">
+                                <button type="submit" class="bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold px-3 py-1.5 rounded-xl transition">Solicitar</button>
+                            </form>
+                        </div>
+                        <div class="bg-slate-900/60 p-4 rounded-xl flex justify-between items-center gap-2">
+                            <div>
+                                <p class="text-xs font-bold text-white">Armonización Energética Personal</p>
+                                <p class="text-[10px] text-slate-400">60 a 90 min — Equilibrar campo energético, chakras y meridianos</p>
+                            </div>
+                            <form action="/solicitar_servicio" method="POST">
+                                <input type="hidden" name="servicio_nombre" value="Armonización Energética Personal">
+                                <button type="submit" class="bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold px-3 py-1.5 rounded-xl transition">Solicitar</button>
+                            </form>
+                        </div>
+                        <div class="bg-slate-900/60 p-4 rounded-xl flex justify-between items-center gap-2">
+                            <div>
+                                <p class="text-xs font-bold text-white">Radiónica y Gráficos de Armonización</p>
+                                <p class="text-[10px] text-slate-400">60 min — Emisión de frecuencias y patrones geométricos de sanación</p>
+                            </div>
+                            <form action="/solicitar_servicio" method="POST">
+                                <input type="hidden" name="servicio_nombre" value="Radiónica y Gráficos de Armonización">
+                                <button type="submit" class="bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold px-3 py-1.5 rounded-xl transition">Solicitar</button>
+                            </form>
+                        </div>
+                        <div class="bg-slate-900/60 p-4 rounded-xl flex justify-between items-center gap-2">
+                            <div>
+                                <p class="text-xs font-bold text-white">Investigaciones Específicas</p>
+                                <p class="text-[10px] text-slate-400">60 a 90 min — Consulta profunda para identificar y resolver situaciones</p>
+                            </div>
+                            <form action="/solicitar_servicio" method="POST">
+                                <input type="hidden" name="servicio_nombre" value="Investigaciones Específicas">
+                                <button type="submit" class="bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold px-3 py-1.5 rounded-xl transition">Solicitar</button>
+                            </form>
+                        </div>
+                        <div class="bg-slate-900/60 p-4 rounded-xl flex justify-between items-center gap-2">
+                            <div>
+                                <p class="text-xs font-bold text-white">Seguimiento Energético</p>
+                                <p class="text-[10px] text-slate-400">Programa personalizado — Acompañamiento y ajustes energéticos</p>
+                            </div>
+                            <form action="/solicitar_servicio" method="POST">
+                                <input type="hidden" name="servicio_nombre" value="Seguimiento Energético">
                                 <button type="submit" class="bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold px-3 py-1.5 rounded-xl transition">Solicitar</button>
                             </form>
                         </div>
@@ -645,7 +685,7 @@
         // Auto avance cada 6 segundos
         let autoPlay = setInterval(nextSlide, 6000);
 
-        // Pausar y reanudar con funciones estándar
+        // Pausar y reanudar
         const carruselEl = document.getElementById('carrusel-slides');
         if (carruselEl && carruselEl.parentElement) {
             carruselEl.parentElement.addEventListener('mouseenter', function() {
