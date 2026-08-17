@@ -118,17 +118,17 @@
             {% endif %}
         </div>
 
-        <!-- Módulo: Documentos / PDFs -->
+        <!-- Módulo: Documentos Astrológicos -->
         <div class="glass-panel p-6 md:p-8 rounded-3xl shadow-2xl space-y-6 border border-white/10">
             <div class="flex items-center justify-between">
                 <h2 class="text-lg font-bold text-white flex items-center gap-2">
                     <i data-lucide="file-text" class="w-5 h-5 text-purple-400"></i>
-                    <span>Documentos Astrológicos (PDFs / Cartas)</span>
+                    <span>Documentos Astrológicos (Google Drive / Canva / Enlaces)</span>
                 </h2>
             </div>
 
-            <!-- Formulario Subir Documento -->
-            <form action="/admin/subir_documento/{{ cliente.id }}" method="POST" enctype="multipart/form-data" class="glass-card p-4 rounded-2xl border border-white/5 space-y-3">
+            <!-- Formulario Vincular Documento -->
+            <form action="/admin/subir_documento/{{ cliente.id }}" method="POST" class="glass-card p-4 rounded-2xl border border-white/5 space-y-3">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
                     <div>
                         <label class="block text-slate-400 font-medium mb-1">Tipo de Documento</label>
@@ -141,16 +141,16 @@
                         </select>
                     </div>
                     <div>
-                        <label class="block text-slate-400 font-medium mb-1">Archivo (PDF o Imagen)</label>
-                        <input type="file" name="archivo" required accept=".pdf,.png,.jpg,.jpeg" class="w-full text-slate-300 text-xs file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-purple-600 file:text-white hover:file:bg-purple-500">
+                        <label class="block text-slate-400 font-medium mb-1">Enlace del Documento (Drive, Canva, Dropbox)</label>
+                        <input type="url" name="link_documento" required placeholder="https://drive.google.com/file/d/..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-purple-500">
                     </div>
                 </div>
                 <button type="submit" class="bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs px-4 py-2.5 rounded-xl transition shadow-lg shadow-purple-600/20">
-                    Subir & Notificar al Portal
+                    Vincular Documento & Notificar al Portal
                 </button>
             </form>
 
-            <!-- Lista de Archivos -->
+            <!-- Lista de Archivos / Enlaces -->
             <div class="space-y-2">
                 {% if documentos %}
                     {% for doc in documentos %}
@@ -159,12 +159,13 @@
                             <span class="bg-purple-500/20 text-purple-300 text-[10px] font-bold px-2 py-0.5 rounded-full border border-purple-500/30">
                                 {{ doc.tipo_doc }}
                             </span>
-                            <p class="text-[10px] text-slate-500">Subido el: {{ doc.fecha_subida }}</p>
+                            <p class="font-bold text-white break-all">{{ doc.nombre_archivo }}</p>
+                            <p class="text-[10px] text-slate-500">Registrado el: {{ doc.fecha_subida }}</p>
                         </div>
-                        <div class="flex items-center gap-2">
-                            <!-- Enlace a Base64 / Data URL -->
-                            <a href="{{ doc.nombre_archivo }}" target="_blank" download="Documento_{{ doc.tipo_doc }}" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-2 rounded-xl transition">
-                                Ver / Descargar Documento
+                        <div class="flex items-center gap-2 shrink-0">
+                            <a href="{{ doc.nombre_archivo }}" target="_blank" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-2 rounded-xl transition flex items-center gap-1.5 font-semibold">
+                                <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+                                <span>Abrir Enlace</span>
                             </a>
                             <button onclick="document.getElementById('modal-eliminar-{{ doc.id }}').classList.remove('hidden')" class="bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 p-2 rounded-xl transition">
                                 <i data-lucide="trash-2" class="w-4 h-4"></i>
@@ -176,7 +177,7 @@
                     <div id="modal-eliminar-{{ doc.id }}" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
                         <div class="glass-panel max-w-sm w-full p-6 rounded-3xl space-y-4 border border-white/10 shadow-2xl">
                             <h3 class="text-sm font-bold text-rose-400">Confirmar Eliminación</h3>
-                            <p class="text-xs text-slate-300">Ingresa tu contraseña de administrador para eliminar este archivo:</p>
+                            <p class="text-xs text-slate-300">Ingresa tu contraseña de administrador para eliminar este enlace:</p>
                             <form action="/admin/eliminar_documento/{{ doc.id }}" method="POST" class="space-y-3">
                                 <input type="hidden" name="cliente_id" value="{{ cliente.id }}">
                                 <input type="password" name="password" required placeholder="Contraseña Admin" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
@@ -189,7 +190,7 @@
                     </div>
                     {% endfor %}
                 {% else %}
-                    <p class="text-xs text-slate-500 italic py-2">No hay documentos subidos para este consultante.</p>
+                    <p class="text-xs text-slate-500 italic py-2">No hay documentos vinculados para este consultante.</p>
                 {% endif %}
             </div>
         </div>

@@ -1,6 +1,5 @@
 import os
 import json
-import base64
 import secrets
 import sqlite3
 from datetime import datetime
@@ -21,8 +20,8 @@ DB_PATH = 'database.db'
 DB_URL = os.environ.get('DATABASE_URL') or os.environ.get('POSTGRES_URL')
 IS_POSTGRES = bool(DB_URL)
 
-# Carpeta de subida (Fallback local)
-UPLOAD_FOLDER = os.path.join(os.getcwd(), 'uploads')
+# Carpeta de subida
+UPLOAD_FOLDER = '/tmp/uploads' if (os.environ.get('VERCEL') or IS_POSTGRES) else os.path.join(os.getcwd(), 'uploads')
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 ALLOWED_EXTENSIONS = {'pdf', 'png', 'jpg', 'jpeg'}
@@ -85,8 +84,6 @@ def registro_form():
         nombre = request.form.get('nombre', '').strip()
         codigo_pais = request.form.get('codigo_pais', '+58')
         num_telefono = request.form.get('telefono', '').strip()
-        
-        # Concatena el código con el número si ingresó datos
         telefono = f"{codigo_pais} {num_telefono}" if num_telefono else ""
         
         email = request.form.get('email', '').strip().lower()
@@ -602,7 +599,7 @@ def guardar_nota():
 
 
 # -------------------------------------------------------------
-# GESTIÓN DE DOCUMENTOS (ALMACENAMIENTO PERMANENTE EN BASE64)
+# GESTIÓN DE DOCUMENTOS (ENLACE DIRECTO / DRIVE / CANVA)
 # -------------------------------------------------------------
 
 @app.route('/uploads/<path:filename>')
@@ -614,22 +611,13 @@ def uploaded_file(filename):
 @admin_required
 def subir_documento(cliente_id):
     tipo_doc = request.form.get('tipo_doc')
-    archivo = request.files.get('archivo')
+    link_documento = request.form.get('link_documento', '').strip()
 
-    if not archivo or archivo.filename == '':
-        flash("Debes seleccionar un archivo.", "error")
-        return redirect(url_for('admin_cliente_detalle', cliente_id=cliente_id))
-
-    if not allowed_file(archivo.filename):
-        flash("Tipo de archivo no permitido (solo PDF, PNG, JPG).", "error")
+    if not link_documento:
+        flash("Debes ingresar el enlace del documento (Google Drive, Canva, Dropbox, etc.).", "error")
         return redirect(url_for('admin_cliente_detalle', cliente_id=cliente_id))
 
     try:
-        # Convertir archivo a Data URL Base64 para persistencia total en Vercel
-        contenido_b64 = base64.b64encode(archivo.read()).decode('utf-8')
-        mimetype = archivo.mimetype or 'application/pdf'
-        data_url = f"data:{mimetype};base64,{contenido_b64}"
-
         conn = get_db_connection()
         cursor = conn.cursor()
         param_symbol = '%s' if IS_POSTGRES else '?'
@@ -637,14 +625,14 @@ def subir_documento(cliente_id):
         cursor.execute(f'''
             INSERT INTO documentos (cliente_id, tipo_doc, nombre_archivo)
             VALUES ({param_symbol}, {param_symbol}, {param_symbol})
-        ''', (cliente_id, tipo_doc, data_url))
+        ''', (cliente_id, tipo_doc, link_documento))
 
         conn.commit()
         conn.close()
 
-        flash("Documento subido e integrado correctamente.", "exito")
+        flash("Documento vinculado con éxito.", "exito")
     except Exception as e:
-        flash(f"Error al guardar el archivo: {str(e)}", "error")
+        flash(f"Error al registrar enlace: {str(e)}", "error")
 
     return redirect(url_for('admin_cliente_detalle', cliente_id=cliente_id))
 
