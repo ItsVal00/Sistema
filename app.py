@@ -14,11 +14,23 @@ from werkzeug.utils import secure_filename
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'maru_secret_key_2026_astrologia')
 
-DB_PATH = 'database.db'
-
 # Detectar motor de base de datos
 DB_URL = os.environ.get('DATABASE_URL') or os.environ.get('POSTGRES_URL')
 IS_POSTGRES = bool(DB_URL)
+
+# En Vercel el filesystem del proyecto es de solo lectura (excepto /tmp),
+# y /tmp se borra entre invocaciones. Si no hay Postgres configurado,
+# copiamos la base sqlite versionada a /tmp para que al menos no truene
+# al escribir, aunque los cambios no persistirán entre despliegues/cold starts.
+if os.environ.get('VERCEL') and not IS_POSTGRES:
+    import shutil
+    DB_PATH = '/tmp/database.db'
+    if not os.path.exists(DB_PATH):
+        _bundled_db = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'database.db')
+        if os.path.exists(_bundled_db):
+            shutil.copy(_bundled_db, DB_PATH)
+else:
+    DB_PATH = 'database.db'
 
 # Carpeta de subida
 UPLOAD_FOLDER = '/tmp/uploads' if (os.environ.get('VERCEL') or IS_POSTGRES) else os.path.join(os.getcwd(), 'uploads')
