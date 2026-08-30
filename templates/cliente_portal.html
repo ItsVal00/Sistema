@@ -180,10 +180,10 @@
                     <i data-lucide="sparkles" class="w-5 h-5 text-amber-400"></i>
                     <span>Servicios & Experiencias Astrológicas</span>
                 </h2>
-                <p class="text-xs text-slate-400 mt-1">Conoce cada una de las disciplinas y solicita tu próxima sesión</p>
+                <p class="text-xs text-slate-400 mt-1">Haz clic sobre cualquier lámina para verla en detalle</p>
             </div>
 
-            <!-- CARRUSEL VISUAL DE SERVICIOS (SIN RECUADRO DE FONDO) -->
+            <!-- CARRUSEL VISUAL DE SERVICIOS -->
             <div class="relative group max-w-lg md:max-w-xl mx-auto overflow-hidden">
                 <div id="carrusel-slides" class="flex transition-transform duration-500 ease-out">
                     
@@ -191,56 +191,64 @@
                     <div class="min-w-full flex items-center justify-center">
                         <img src="{{ url_for('static', filename='img/01_astrologia_evolutiva.png') }}" 
                              alt="01 Astrología Evolutiva" 
-                             class="w-full h-auto max-h-[82vh] object-contain rounded-3xl shadow-2xl">
+                             onclick="openModal(this.src)"
+                             class="w-full h-auto max-h-[82vh] object-contain rounded-3xl shadow-2xl cursor-zoom-in hover:scale-[1.01] transition-all">
                     </div>
 
                     <!-- Slide 2: Tarot Evolutivo -->
                     <div class="min-w-full flex items-center justify-center">
                         <img src="{{ url_for('static', filename='img/02_tarot_evolutivo.png') }}" 
                              alt="02 Tarot Evolutivo" 
-                             class="w-full h-auto max-h-[82vh] object-contain rounded-3xl shadow-2xl">
+                             onclick="openModal(this.src)"
+                             class="w-full h-auto max-h-[82vh] object-contain rounded-3xl shadow-2xl cursor-zoom-in hover:scale-[1.01] transition-all">
                     </div>
 
                     <!-- Slide 3: Magia Planetaria -->
                     <div class="min-w-full flex items-center justify-center">
                         <img src="{{ url_for('static', filename='img/03_magia_planetaria.png') }}" 
                              alt="03 Magia Planetaria" 
-                             class="w-full h-auto max-h-[82vh] object-contain rounded-3xl shadow-2xl">
+                             onclick="openModal(this.src)"
+                             class="w-full h-auto max-h-[82vh] object-contain rounded-3xl shadow-2xl cursor-zoom-in hover:scale-[1.01] transition-all">
                     </div>
 
                     <!-- Slide 4: Canalización -->
                     <div class="min-w-full flex items-center justify-center">
                         <img src="{{ url_for('static', filename='img/04_canalizacion.png') }}" 
                              alt="04 Canalización" 
-                             class="w-full h-auto max-h-[82vh] object-contain rounded-3xl shadow-2xl">
+                             onclick="openModal(this.src)"
+                             class="w-full h-auto max-h-[82vh] object-contain rounded-3xl shadow-2xl cursor-zoom-in hover:scale-[1.01] transition-all">
                     </div>
 
                     <!-- Slide 5: Radiestesia -->
                     <div class="min-w-full flex items-center justify-center">
                         <img src="{{ url_for('static', filename='img/05_radiestesia.png') }}" 
                              alt="05 Radiestesia" 
-                             class="w-full h-auto max-h-[82vh] object-contain rounded-3xl shadow-2xl">
+                             onclick="openModal(this.src)"
+                             class="w-full h-auto max-h-[82vh] object-contain rounded-3xl shadow-2xl cursor-zoom-in hover:scale-[1.01] transition-all">
                     </div>
 
                     <!-- Slide 6: Astrología del Dinero -->
                     <div class="min-w-full flex items-center justify-center">
                         <img src="{{ url_for('static', filename='img/06_astrologia_dinero.png') }}" 
                              alt="06 Astrología del Dinero" 
-                             class="w-full h-auto max-h-[82vh] object-contain rounded-3xl shadow-2xl">
+                             onclick="openModal(this.src)"
+                             class="w-full h-auto max-h-[82vh] object-contain rounded-3xl shadow-2xl cursor-zoom-in hover:scale-[1.01] transition-all">
                     </div>
 
                     <!-- Slide 7: Chakras -->
                     <div class="min-w-full flex items-center justify-center">
                         <img src="{{ url_for('static', filename='img/07_chakras.png') }}" 
                              alt="07 Limpieza de Chakras" 
-                             class="w-full h-auto max-h-[82vh] object-contain rounded-3xl shadow-2xl">
+                             onclick="openModal(this.src)"
+                             class="w-full h-auto max-h-[82vh] object-contain rounded-3xl shadow-2xl cursor-zoom-in hover:scale-[1.01] transition-all">
                     </div>
 
                     <!-- Slide 8: Liberación -->
                     <div class="min-w-full flex items-center justify-center">
                         <img src="{{ url_for('static', filename='img/08_liberacion.png') }}" 
                              alt="08 Liberación y Sanación" 
-                             class="w-full h-auto max-h-[82vh] object-contain rounded-3xl shadow-2xl">
+                             onclick="openModal(this.src)"
+                             class="w-full h-auto max-h-[82vh] object-contain rounded-3xl shadow-2xl cursor-zoom-in hover:scale-[1.01] transition-all">
                     </div>
 
                 </div>
@@ -620,7 +628,20 @@
 
     </div>
 
-    <!-- SCRIPT DE CARRUSEL Y LUCIDE -->
+    <!-- MODAL VISOR DE IMAGEN A PANTALLA COMPLETA -->
+    <div id="image-modal" class="fixed inset-0 z-50 hidden bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-3 md:p-6 transition-opacity duration-300">
+        <!-- Botón Cerrar Flotante -->
+        <button onclick="closeModal()" class="absolute top-4 right-4 md:top-6 md:right-6 w-11 h-11 rounded-full bg-slate-900/80 hover:bg-purple-600 text-white flex items-center justify-center transition border border-white/10 shadow-2xl z-50">
+            <i data-lucide="x" class="w-6 h-6"></i>
+        </button>
+
+        <!-- Contenedor de la Imagen Ampliada -->
+        <div class="relative max-w-4xl max-h-[92vh] flex items-center justify-center" onclick="event.stopPropagation()">
+            <img id="modal-img" src="" alt="Vista ampliada" class="max-w-full max-h-[92vh] w-auto h-auto object-contain rounded-2xl shadow-2xl border border-white/10">
+        </div>
+    </div>
+
+    <!-- SCRIPT DE CARRUSEL, MODAL Y LUCIDE -->
     <script>
         lucide.createIcons();
 
@@ -676,6 +697,34 @@
                 autoPlay = setInterval(nextSlide, 6000);
             });
         }
+
+        // Funciones del Modal / Zoom
+        const modal = document.getElementById('image-modal');
+        const modalImg = document.getElementById('modal-img');
+
+        function openModal(src) {
+            if (!modal || !modalImg) return;
+            modalImg.src = src;
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+            lucide.createIcons();
+        }
+
+        function closeModal() {
+            if (!modal) return;
+            modal.classList.add('hidden');
+            document.body.style.overflow = '';
+        }
+
+        if (modal) {
+            modal.addEventListener('click', closeModal);
+        }
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && modal && !modal.classList.contains('hidden')) {
+                closeModal();
+            }
+        });
     </script>
 </body>
 </html>
