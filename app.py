@@ -14,8 +14,19 @@ from werkzeug.utils import secure_filename
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'maru_secret_key_2026_astrologia')
 
-# Detectar motor de base de datos
-DB_URL = os.environ.get('DATABASE_URL') or os.environ.get('POSTGRES_URL')
+# Detectar motor de base de datos.
+# La integración de Vercel Postgres (Neon) no siempre usa DATABASE_URL/POSTGRES_URL
+# a secas -- a veces solo deja POSTGRES_DATABASE_URL, POSTGRES_URL_NON_POOLING, etc.
+# Probamos todas las variantes conocidas, priorizando la conexión pooled
+# (mejor para funciones serverless, evita agotar conexiones).
+DB_URL = (
+    os.environ.get('DATABASE_URL')
+    or os.environ.get('POSTGRES_URL')
+    or os.environ.get('POSTGRES_DATABASE_URL')
+    or os.environ.get('POSTGRES_PRISMA_URL')
+    or os.environ.get('POSTGRES_URL_NON_POOLING')
+    or os.environ.get('POSTGRES_DATABASE_URL_UNPOOLED')
+)
 IS_POSTGRES = bool(DB_URL)
 
 # En Vercel el filesystem del proyecto es de solo lectura (excepto /tmp),
@@ -46,7 +57,8 @@ if IS_POSTGRES:
 # para confirmar qué base de datos está usando realmente la función en producción.
 print(f"[DB CONFIG] IS_POSTGRES={IS_POSTGRES} | VERCEL={bool(os.environ.get('VERCEL'))} | "
       f"DATABASE_URL_set={bool(os.environ.get('DATABASE_URL'))} | "
-      f"POSTGRES_URL_set={bool(os.environ.get('POSTGRES_URL'))}")
+      f"POSTGRES_URL_set={bool(os.environ.get('POSTGRES_URL'))} | "
+      f"POSTGRES_DATABASE_URL_set={bool(os.environ.get('POSTGRES_DATABASE_URL'))}")
 
 
 def get_db_connection():
