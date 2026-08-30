@@ -237,6 +237,13 @@
                             class="w-full h-auto max-h-[82vh] object-contain rounded-3xl shadow-2xl">
                     </div>
 
+                    <!-- Slide 8: Nuevo Servicio -->
+                    <div class="min-w-full flex items-center justify-center">
+                        <img src="{{ url_for('static', filename='img/08_liberacion') }}" 
+                            alt="08 Nuevo Servicio" 
+                            class="w-full h-auto max-h-[82vh] object-contain rounded-3xl shadow-2xl">
+                    </div>
+
                 </div>
 
                 <!-- Botones de Navegación Flotantes -->
@@ -249,7 +256,7 @@
 
                 <!-- Indicadores de Puntos Minimalistas -->
                 <div class="absolute bottom-3 inset-x-0 flex justify-center items-center gap-1.5 z-20">
-                    {% for i in range(7) %}
+                    {% for i in range(8) %}
                     <button type="button" data-slide="{{ i }}" class="carrusel-dot h-1.5 rounded-full transition-all {% if i == 0 %}bg-purple-400 w-6{% else %}bg-white/40 w-2 hover:bg-white/80{% endif %}"></button>
                     {% endfor %}
                 </div>
