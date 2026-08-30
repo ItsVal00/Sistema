@@ -42,6 +42,12 @@ if IS_POSTGRES:
     import psycopg2
     from psycopg2.extras import RealDictCursor
 
+# Log de diagnóstico: revisa esto en Vercel -> tu proyecto -> pestaña "Logs"
+# para confirmar qué base de datos está usando realmente la función en producción.
+print(f"[DB CONFIG] IS_POSTGRES={IS_POSTGRES} | VERCEL={bool(os.environ.get('VERCEL'))} | "
+      f"DATABASE_URL_set={bool(os.environ.get('DATABASE_URL'))} | "
+      f"POSTGRES_URL_set={bool(os.environ.get('POSTGRES_URL'))}")
+
 
 def get_db_connection():
     if IS_POSTGRES:
