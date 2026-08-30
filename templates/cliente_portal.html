@@ -183,101 +183,66 @@
                 <p class="text-xs text-slate-400 mt-1">Conoce cada una de las disciplinas y solicita tu próxima sesión</p>
             </div>
 
-            <!-- CARRUSEL VISUAL DE SERVICIOS -->
-            <div class="relative group max-w-2xl mx-auto overflow-hidden rounded-3xl border border-white/10 bg-slate-950/60 shadow-2xl">
+            <!-- CARRUSEL VISUAL DE SERVICIOS LIMPIO -->
+            <div class="relative group max-w-2xl mx-auto overflow-hidden rounded-3xl border border-white/10 bg-slate-950/80 shadow-2xl p-2 md:p-3">
                 <div id="carrusel-slides" class="flex transition-transform duration-500 ease-out">
                     
                     <!-- Slide 1: Astrología Evolutiva -->
-                    <div class="min-w-full relative aspect-[3/4] md:aspect-[4/5] flex items-center justify-center bg-slate-900">
+                    <div class="min-w-full flex items-center justify-center rounded-2xl overflow-hidden bg-slate-900/50">
                         <img src="{{ url_for('static', filename='img/01_astrologia_evolutiva.png') }}" 
-                             onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1532968961962-8a0cb3a2d4f5?q=80&w=800&auto=format&fit=crop';" 
-                             alt="01 Astrología Evolutiva" class="w-full h-full object-contain">
-                        <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[#0b0f19] via-[#0b0f19]/80 to-transparent p-6 text-center">
-                            <span class="text-xs font-bold text-amber-300 uppercase tracking-widest">01 — Disciplina</span>
-                            <h3 class="text-lg font-extrabold text-white">Astrología Evolutiva</h3>
-                        </div>
+                             alt="01 Astrología Evolutiva" class="w-full h-auto max-h-[78vh] object-contain rounded-2xl">
                     </div>
 
                     <!-- Slide 2: Tarot Evolutivo -->
-                    <div class="min-w-full relative aspect-[3/4] md:aspect-[4/5] flex items-center justify-center bg-slate-900">
+                    <div class="min-w-full flex items-center justify-center rounded-2xl overflow-hidden bg-slate-900/50">
                         <img src="{{ url_for('static', filename='img/02_tarot_evolutivo.png') }}" 
-                             onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1514533450685-4493e01d1fdc?q=80&w=800&auto=format&fit=crop';" 
-                             alt="02 Tarot Evolutivo" class="w-full h-full object-contain">
-                        <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[#0b0f19] via-[#0b0f19]/80 to-transparent p-6 text-center">
-                            <span class="text-xs font-bold text-purple-300 uppercase tracking-widest">02 — Disciplina</span>
-                            <h3 class="text-lg font-extrabold text-white">Tarot Evolutivo</h3>
-                        </div>
+                             alt="02 Tarot Evolutivo" class="w-full h-auto max-h-[78vh] object-contain rounded-2xl">
                     </div>
 
                     <!-- Slide 3: Magia Planetaria -->
-                    <div class="min-w-full relative aspect-[3/4] md:aspect-[4/5] flex items-center justify-center bg-slate-900">
+                    <div class="min-w-full flex items-center justify-center rounded-2xl overflow-hidden bg-slate-900/50">
                         <img src="{{ url_for('static', filename='img/03_magia_planetaria.png') }}" 
-                             onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1506703719100-a0f3a48c0f86?q=80&w=800&auto=format&fit=crop';" 
-                             alt="03 Magia Planetaria" class="w-full h-full object-contain">
-                        <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[#0b0f19] via-[#0b0f19]/80 to-transparent p-6 text-center">
-                            <span class="text-xs font-bold text-pink-300 uppercase tracking-widest">03 — Disciplina</span>
-                            <h3 class="text-lg font-extrabold text-white">Magia Planetaria y Práctica</h3>
-                        </div>
+                             alt="03 Magia Planetaria" class="w-full h-auto max-h-[78vh] object-contain rounded-2xl">
                     </div>
 
                     <!-- Slide 4: Canalización -->
-                    <div class="min-w-full relative aspect-[3/4] md:aspect-[4/5] flex items-center justify-center bg-slate-900">
+                    <div class="min-w-full flex items-center justify-center rounded-2xl overflow-hidden bg-slate-900/50">
                         <img src="{{ url_for('static', filename='img/04_canalizacion.png') }}" 
-                             onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=800&auto=format&fit=crop';" 
-                             alt="04 Canalización" class="w-full h-full object-contain">
-                        <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[#0b0f19] via-[#0b0f19]/80 to-transparent p-6 text-center">
-                            <span class="text-xs font-bold text-indigo-300 uppercase tracking-widest">04 — Disciplina</span>
-                            <h3 class="text-lg font-extrabold text-white">Canalización y Guía Espiritual</h3>
-                        </div>
+                             alt="04 Canalización" class="w-full h-auto max-h-[78vh] object-contain rounded-2xl">
                     </div>
 
                     <!-- Slide 5: Radiestesia -->
-                    <div class="min-w-full relative aspect-[3/4] md:aspect-[4/5] flex items-center justify-center bg-slate-900">
+                    <div class="min-w-full flex items-center justify-center rounded-2xl overflow-hidden bg-slate-900/50">
                         <img src="{{ url_for('static', filename='img/05_radiestesia.png') }}" 
-                             onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=800&auto=format&fit=crop';" 
-                             alt="05 Radiestesia" class="w-full h-full object-contain">
-                        <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[#0b0f19] via-[#0b0f19]/80 to-transparent p-6 text-center">
-                            <span class="text-xs font-bold text-teal-300 uppercase tracking-widest">05 — Disciplina</span>
-                            <h3 class="text-lg font-extrabold text-white">Radiestesia y Radiónica</h3>
-                        </div>
+                             alt="05 Radiestesia" class="w-full h-auto max-h-[78vh] object-contain rounded-2xl">
                     </div>
 
                     <!-- Slide 6: Astrología del Dinero -->
-                    <div class="min-w-full relative aspect-[3/4] md:aspect-[4/5] flex items-center justify-center bg-slate-900">
+                    <div class="min-w-full flex items-center justify-center rounded-2xl overflow-hidden bg-slate-900/50">
                         <img src="{{ url_for('static', filename='img/06_astrologia_dinero.png') }}" 
-                             onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1621416894569-0f39ed31d247?q=80&w=800&auto=format&fit=crop';" 
-                             alt="06 Astrología del Dinero" class="w-full h-full object-contain">
-                        <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[#0b0f19] via-[#0b0f19]/80 to-transparent p-6 text-center">
-                            <span class="text-xs font-bold text-emerald-300 uppercase tracking-widest">06 — Disciplina</span>
-                            <h3 class="text-lg font-extrabold text-white">Astrología del Dinero y Prosperidad</h3>
-                        </div>
+                             alt="06 Astrología del Dinero" class="w-full h-auto max-h-[78vh] object-contain rounded-2xl">
                     </div>
 
                     <!-- Slide 7: Chakras -->
-                    <div class="min-w-full relative aspect-[3/4] md:aspect-[4/5] flex items-center justify-center bg-slate-900">
+                    <div class="min-w-full flex items-center justify-center rounded-2xl overflow-hidden bg-slate-900/50">
                         <img src="{{ url_for('static', filename='img/07_chakras.png') }}" 
-                             onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1506126613408-eca07ce68773?q=80&w=800&auto=format&fit=crop';" 
-                             alt="07 Limpieza de Chakras" class="w-full h-full object-contain">
-                        <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[#0b0f19] via-[#0b0f19]/80 to-transparent p-6 text-center">
-                            <span class="text-xs font-bold text-cyan-300 uppercase tracking-widest">07 — Disciplina</span>
-                            <h3 class="text-lg font-extrabold text-white">Limpieza y Alineación de Chakras</h3>
-                        </div>
+                             alt="07 Limpieza de Chakras" class="w-full h-auto max-h-[78vh] object-contain rounded-2xl">
                     </div>
 
                 </div>
 
-                <!-- Botones de Navegación -->
-                <button onclick="prevSlide()" class="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-slate-900/80 hover:bg-purple-600 text-white flex items-center justify-center transition border border-white/10 shadow-lg z-20">
+                <!-- Botones de Navegación Flotantes -->
+                <button onclick="prevSlide()" class="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-slate-900/70 hover:bg-purple-600/90 text-white backdrop-blur-md flex items-center justify-center transition border border-white/10 shadow-xl z-20">
                     <i data-lucide="chevron-left" class="w-5 h-5"></i>
                 </button>
-                <button onclick="nextSlide()" class="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-slate-900/80 hover:bg-purple-600 text-white flex items-center justify-center transition border border-white/10 shadow-lg z-20">
+                <button onclick="nextSlide()" class="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-slate-900/70 hover:bg-purple-600/90 text-white backdrop-blur-md flex items-center justify-center transition border border-white/10 shadow-xl z-20">
                     <i data-lucide="chevron-right" class="w-5 h-5"></i>
                 </button>
 
-                <!-- Indicadores de Puntos -->
-                <div class="absolute bottom-3 inset-x-0 flex justify-center gap-1.5 z-20">
+                <!-- Indicadores de Puntos Minimalistas -->
+                <div class="absolute bottom-4 inset-x-0 flex justify-center items-center gap-1.5 z-20">
                     {% for i in range(7) %}
-                    <button type="button" data-slide="{{ i }}" class="carrusel-dot w-2 h-2 rounded-full transition-all {% if i == 0 %}bg-purple-500 w-5{% else %}bg-white/30{% endif %}"></button>
+                    <button type="button" data-slide="{{ i }}" class="carrusel-dot h-1.5 rounded-full transition-all {% if i == 0 %}bg-purple-400 w-6{% else %}bg-white/30 w-2 hover:bg-white/60{% endif %}"></button>
                     {% endfor %}
                 </div>
             </div>
@@ -655,10 +620,10 @@
             slidesContainer.style.transform = 'translateX(-' + (currentSlide * 100) + '%)';
             dots.forEach((dot, index) => {
                 if (index === currentSlide) {
-                    dot.classList.add('bg-purple-500', 'w-5');
+                    dot.classList.add('bg-purple-400', 'w-6');
                     dot.classList.remove('bg-white/30', 'w-2');
                 } else {
-                    dot.classList.remove('bg-purple-500', 'w-5');
+                    dot.classList.remove('bg-purple-400', 'w-6');
                     dot.classList.add('bg-white/30', 'w-2');
                 }
             });
