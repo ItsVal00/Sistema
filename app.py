@@ -118,7 +118,7 @@ def registro_form():
         
         email = request.form.get('email', '').strip().lower()
         fecha_nac = request.form.get('fecha_nacimiento')
-        hora_nac = request.form.get('hora_nacimiento')
+        hora_nac = request.form.get('hora_nacimiento', '').strip() or None
         lugar_nac = request.form.get('lugar_nacimiento', '').strip()
         motivo = request.form.get('motivo_consulta', '').strip()
         referido_por = request.form.get('referido_por', '').strip()
@@ -403,7 +403,7 @@ def crear_cliente():
 
     email = request.form.get('email', '').strip().lower()
     fecha_nac = request.form.get('fecha_nacimiento')
-    hora_nac = request.form.get('hora_nacimiento', '').strip()
+    hora_nac = request.form.get('hora_nacimiento', '').strip() or None
     lugar_nac = request.form.get('lugar_nacimiento', '').strip()
     motivo = request.form.get('motivo_consulta', '').strip()
     referido_por = request.form.get('referido_por', '').strip()
